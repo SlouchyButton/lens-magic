@@ -25,6 +25,10 @@ __kernel void rgb_to_hsl(unsigned char r, unsigned char g, unsigned char b,
         *h = 60 * ((dr-dg)/delta + 4);
     }
 
+    if (*h < 0) {
+    	*h = 360+*h;
+    }
+
     *l = (max_val + min_val) / 2;
     *s = delta / (1 - fabs(2*(*l) - 1));
 }
@@ -64,9 +68,9 @@ __kernel void hsl_to_rgb(double h, double s, double l,
         b_temp = x;
     }
 
-    *r = (r_temp+m)*255;
-    *g = (g_temp+m)*255;
-    *b = (b_temp+m)*255;
+    *r = round((r_temp+m)*255);
+    *g = round((g_temp+m)*255);
+    *b = round((b_temp+m)*255);
 }
 
 __kernel void exposure(__global unsigned char* input, __global unsigned char* output, const double val) {
@@ -144,6 +148,10 @@ __kernel void saturation(__global unsigned char* input, __global unsigned char* 
 	__local double s;
 	__local double l;
 
+	h = 0;
+	s = 0;
+	l = 0;
+
     rgb_to_hsl(r,g,b, &h,&s,&l);
 
     double modifier = s * val;
@@ -157,6 +165,7 @@ __kernel void saturation(__global unsigned char* input, __global unsigned char* 
     }
 
     hsl_to_rgb(h,s,l, &r,&g,&b);
+
     output[i] = r;
     output[i+1] = g;
     output[i+2] = b;

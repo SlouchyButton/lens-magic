@@ -9,7 +9,7 @@ import os
 header = "const char *KernelSource =\n"
 with open(sys.argv[1], 'r') as file:
     for line in file.readlines():
-        header += "    \""+line.replace("\n", "")+"\"\\\n"
+        header += "    \""+line.replace("\n", "").replace("\\", "\\\\").replace("\"", "\\\"")+"\"\\\n"
 header += "    \"\";\n"
 
 #print(header)
