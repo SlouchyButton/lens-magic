@@ -1,0 +1,54 @@
+{
+    "app-id" : "org.slouchybutton.LensMagic",
+    "runtime" : "org.gnome.Platform",
+    "runtime-version" : "master",
+    "sdk" : "org.gnome.Sdk",
+    "command" : "lens-magic",
+    "finish-args" : [
+        "--share=network",
+        "--share=ipc",
+        "--socket=fallback-x11",
+        "--device=dri",
+        "--socket=wayland"
+    ],
+    "cleanup" : [
+        "/include",
+        "/lib/pkgconfig",
+        "/man",
+        "/share/doc",
+        "/share/gtk-doc",
+        "/share/man",
+        "/share/pkgconfig",
+        "*.la",
+        "*.a"
+    ],
+    "modules" : [
+	    {
+			"name": "OpenCL-Headers",
+			"buildsystem": "simple",
+            "build-commands": [
+                "cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/app",
+                "cmake --build build --target install"
+            ],
+			"builddir": true,
+			"sources": [
+			{
+				"type": "git",
+				"branch": "main",
+				"url": "https://github.com/KhronosGroup/OpenCL-Headers.git"
+			}
+			]
+	    },
+        {
+            "name" : "lens-magic",
+            "builddir" : true,
+            "buildsystem" : "meson",
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "file:///home/slouchy/Documents/Projects"
+                }
+            ]
+        }
+    ]
+}
