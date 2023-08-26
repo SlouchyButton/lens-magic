@@ -77,92 +77,67 @@ int hw_init(void) {
     return 0;
 }
 
-void prepare_buffers(uint8_t *data, int len) {
+void hw_set(char* function_name, uint8_t *pixels, int pixel_size, int len, double val) {
     cl_int err = 0;
-    input = clCreateBuffer(context,  CL_MEM_READ_ONLY,  len, NULL, &err);
-    output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, len, NULL, &err);
+    kernel = clCreateKernel(program, function_name, &err);
 
-    err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, len, data, 0, NULL, NULL);
+    input = clCreateBuffer(context,  CL_MEM_READ_ONLY,  len, NULL, &err);
+    if (err != CL_SUCCESS)
+    {
+        printf("Failed to create input buffer\n");
+        return;
+    }
+    output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, len, NULL, &err);
+    if (err != CL_SUCCESS)
+    {
+        printf("Failed to create output buffer\n");
+        return;
+    }
+
+    err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, len, pixels, 0, NULL, NULL);
+    if (err != CL_SUCCESS)
+    {
+        printf("Failed to write to input buffer\n");
+        return;
+    }
 
     err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &input);
+    if (err != CL_SUCCESS)
+    {
+        printf("Failed to set input buffer as a kernel argument\n");
+        return;
+    }
     err = clSetKernelArg(kernel, 1, sizeof(cl_mem), &output);
-}
-
-void hw_set_exposure(uint8_t *pixels, int pixel_size, int len, double val) {
-    cl_int err = 0;
-    kernel = clCreateKernel(program, "exposure", &err);
-
-    prepare_buffers(pixels, len);
+    if (err != CL_SUCCESS)
+    {
+        printf("Failed to set output buffer as a kernel argument\n");
+        return;
+    }
 
     err = clSetKernelArg(kernel, 2, sizeof(double), &val);
+    if (err != CL_SUCCESS)
+    {
+        printf("Failed to set value as a kernel argument\n");
+        return;
+    }
 
     size_t size = len;
     size_t chunk = pixel_size;
     err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &size, &chunk, 0, NULL, NULL);
+    if (err != CL_SUCCESS)
+    {
+        printf("Failed to enqueue work\n");
+        return;
+    }
 
     clFinish(commands);
 
-    err = clEnqueueReadBuffer( commands, output, CL_TRUE, 0, sizeof(uint8_t) * len, pixels, 0, NULL, NULL );
-
-    clReleaseMemObject(input);
-    clReleaseMemObject(output);
-}
-
-void hw_set_brightness(uint8_t *pixels, int pixel_size, int len, double val) {
-    cl_int err = 0;
-    kernel = clCreateKernel(program, "brightness", &err);
-
-    prepare_buffers(pixels, len);
-
-    err = clSetKernelArg(kernel, 2, sizeof(double), &val);
-
-    size_t size = len;
-    size_t chunk = pixel_size;
-    err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &size, &chunk, 0, NULL, NULL);
-
-    clFinish(commands);
-
-    err = clEnqueueReadBuffer( commands, output, CL_TRUE, 0, sizeof(uint8_t) * len, pixels, 0, NULL, NULL );
-
-    clReleaseMemObject(input);
-    clReleaseMemObject(output);
-}
-
-void hw_set_contrast(uint8_t *pixels, int pixel_size, int len, double val) {
-    cl_int err = 0;
-    kernel = clCreateKernel(program, "contrast", &err);
-
-    prepare_buffers(pixels, len);
-
-    err = clSetKernelArg(kernel, 2, sizeof(double), &val);
-
-    size_t size = len;
-    size_t chunk = pixel_size;
-    err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &size, &chunk, 0, NULL, NULL);
-
-    clFinish(commands);
-
-    err = clEnqueueReadBuffer( commands, output, CL_TRUE, 0, sizeof(uint8_t) * len, pixels, 0, NULL, NULL );
-
-    clReleaseMemObject(input);
-    clReleaseMemObject(output);
-}
-
-void hw_set_saturation(uint8_t *pixels, int pixel_size, int len, double val) {
-    cl_int err = 0;
-    kernel = clCreateKernel(program, "saturation", &err);
-
-    prepare_buffers(pixels, len);
-
-    err = clSetKernelArg(kernel, 2, sizeof(double), &val);
-
-    size_t size = len;
-    size_t chunk = pixel_size;
-    err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &size, &chunk, 0, NULL, NULL);
-
-    clFinish(commands);
-
-    err = clEnqueueReadBuffer( commands, output, CL_TRUE, 0, sizeof(uint8_t) * len, pixels, 0, NULL, NULL );
+    err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0, sizeof(uint8_t) * len, pixels, 0, NULL, NULL);
+    if (err != CL_SUCCESS)
+    {
+        printf("Failed to enqueue work\n");
+        return;
+    }
 
     clReleaseMemObject(input);
     clReleaseMemObject(output);

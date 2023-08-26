@@ -39,7 +39,7 @@ void exposure_apply(GdkPixbuf* pxb, gdouble val) {
       }
     }*/
 
-    hw_set_exposure(pix, 3+has_alpha, len, val);
+    hw_set("exposure", pix, 3+has_alpha, len, val);
 }
 
 void brightness_apply(GdkPixbuf* pxb, gdouble val) {
@@ -67,7 +67,7 @@ void brightness_apply(GdkPixbuf* pxb, gdouble val) {
       }
     }*/
 
-    hw_set_brightness(pix, 3+has_alpha, len, val);
+    hw_set("brightness", pix, 3+has_alpha, len, val);
 }
 
 void contrast_apply(GdkPixbuf* pxb, gdouble val) {
@@ -95,7 +95,7 @@ void contrast_apply(GdkPixbuf* pxb, gdouble val) {
       }
     }*/
 
-    hw_set_contrast(pix, 3+has_alpha, len, val);
+    hw_set("contrast", pix, 3+has_alpha, len, val);
 }
 
 void temperature_apply(GdkPixbuf* pxb, gdouble val) {
@@ -104,7 +104,7 @@ void temperature_apply(GdkPixbuf* pxb, gdouble val) {
     guint len = 0;
     guchar* pix = NULL;
     pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    for (int i = 0; i < len; i = i+3+has_alpha) {
+    /*for (int i = 0; i < len; i = i+3+has_alpha) {
         int newR = pix[i] + val;
         if (newR > 255) {
           pix[i] = 255;
@@ -121,7 +121,9 @@ void temperature_apply(GdkPixbuf* pxb, gdouble val) {
         } else {
           pix[i+2] = newB;
         }
-    }
+    }*/
+
+    hw_set("temperature", pix, 3+has_alpha, len, val);
 }
 
 void tint_apply(GdkPixbuf* pxb, gdouble val) {
@@ -184,7 +186,7 @@ void saturation_apply(GdkPixbuf* pxb, gdouble val) {
         pix[i+1] = rgb.g;
         pix[i+2] = rgb.b;
     }*/
-    hw_set_saturation(pix, 3+has_alpha, len, val);
+    hw_set("saturation", pix, 3+has_alpha, len, val);
 }
 
 void highlights_apply(GdkPixbuf* pxb, gdouble val) {
@@ -387,7 +389,7 @@ void render_pixbuf(GdkPixbuf* pxb, Preset settings) {
         shadows_apply (pxb, settings.shadows);
     if (settings.saturation != 0)
         saturation_apply (pxb, settings.saturation);
-    /*if (settings.temperature != 0)
+    if (settings.temperature != 0)
         temperature_apply (pxb, settings.temperature);
     if (settings.tint != 0)
         tint_apply (pxb, settings.tint);
@@ -396,7 +398,7 @@ void render_pixbuf(GdkPixbuf* pxb, Preset settings) {
     if (settings.color_saturation != 0)
         color_saturation_apply (pxb, settings.color_saturation);
     if (settings.color_lightness != 0)
-        color_lightness_apply (pxb, settings.color_lightness);*/
+        color_lightness_apply (pxb, settings.color_lightness);
 }
 
 gboolean set_picture(gpointer data) {

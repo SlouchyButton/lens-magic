@@ -133,6 +133,27 @@ __kernel void contrast(__global unsigned char* input, __global unsigned char* ou
 	}
 }
 
+__kernel void temperature(__global unsigned char* input, __global unsigned char* output, const double val) {
+	int i = get_global_id(0);
+	int newR = input[i] + val;
+	output[i] = (unsigned char) 0;
+    /*if (newR > 255) {
+      output[i] = 255;
+    } else if (newR < 0) {
+      output[i] = 0;
+    } else {
+      output[i] = newR;
+    }*/
+    /*int newB = input[i+2] - val;
+    if (newB > 255) {
+      output[i+2] = 255;
+    } else if (newB < 0) {
+      output[i+2] = 0;
+    } else {
+      output[i+2] = newB;
+    }*/
+}
+
 __kernel void saturation(__global unsigned char* input, __global unsigned char* output, const double val) {
 	int i = get_global_id(0);
 
