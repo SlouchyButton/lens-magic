@@ -5,5 +5,6 @@
 #include <CL/opencl.h>
 
 int hw_init(void);
-void hw_set(char* function_name, uint8_t *pixels, int pixel_size, int len, double val);
-
+void hw_set(char* function_name, uint8_t *pixels, int width, int height, double val);
+void hw_set_params(char* function_name, uint8_t *pixels, int width, int height, double val,
+                    int params[], int params_count);

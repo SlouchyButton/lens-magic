@@ -1,5 +1,6 @@
 #include "hw-renderer.h"
 #include <stdio.h>
+#include <string.h>
 
 #include "kernel-source.h"
 
@@ -77,65 +78,90 @@ int hw_init(void) {
     return 0;
 }
 
-void hw_set(char* function_name, uint8_t *pixels, int pixel_size, int len, double val) {
+void hw_set(char* function_name, uint8_t *pixels, int width, int height, double val) {
+    hw_set_params(function_name, pixels, width, height, val, NULL, 0);
+}
+
+void hw_set_params(char* function_name, uint8_t *pixels, int width, int height, double val,
+                    int params[], int params_count) {
+    int len = width*height;
     cl_int err = 0;
     kernel = clCreateKernel(program, function_name, &err);
 
-    input = clCreateBuffer(context,  CL_MEM_READ_ONLY,  len, NULL, &err);
+    cl_image_format format;
+    format.image_channel_order = CL_RGBA;
+    format.image_channel_data_type = CL_UNSIGNED_INT8;
+
+    cl_image_desc desc;
+    desc.image_type = CL_MEM_OBJECT_IMAGE2D;
+    desc.image_width = width;
+    desc.image_height = height;
+    desc.image_depth = 0;
+    desc.image_array_size = 0;
+    desc.image_row_pitch = 0;
+    desc.image_slice_pitch = 0;
+    desc.num_mip_levels = 0;
+    desc.num_samples = 0;
+    desc.buffer = NULL;
+
+    //input = clCreateBuffer(context,  CL_MEM_READ_ONLY,  len, NULL, &err);
+    input = clCreateImage(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, &format, &desc, pixels, &err);
     if (err != CL_SUCCESS)
     {
-        printf("Failed to create input buffer\n");
-        return;
-    }
-    output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, len, NULL, &err);
-    if (err != CL_SUCCESS)
-    {
-        printf("Failed to create output buffer\n");
+        printf("Failed to create input buffer (%d)\n", err);
         return;
     }
 
-    err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, len, pixels, 0, NULL, NULL);
+    output = clCreateImage(context, CL_MEM_WRITE_ONLY, &format, &desc, NULL, &err);
     if (err != CL_SUCCESS)
     {
-        printf("Failed to write to input buffer\n");
+        printf("Failed to create output buffer (%d)\n", err);
         return;
     }
 
     err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &input);
     if (err != CL_SUCCESS)
     {
-        printf("Failed to set input buffer as a kernel argument\n");
+        printf("Failed to set input buffer as a kernel argument (%d)\n", err);
         return;
     }
     err = clSetKernelArg(kernel, 1, sizeof(cl_mem), &output);
     if (err != CL_SUCCESS)
     {
-        printf("Failed to set output buffer as a kernel argument\n");
+        printf("Failed to set output buffer as a kernel argument (%d)\n", err);
         return;
     }
 
     err = clSetKernelArg(kernel, 2, sizeof(double), &val);
     if (err != CL_SUCCESS)
     {
-        printf("Failed to set value as a kernel argument\n");
+        printf("Failed to set value as a kernel argument (%d)\n", err);
         return;
     }
 
-    size_t size = len;
-    size_t chunk = pixel_size;
-    err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &size, &chunk, 0, NULL, NULL);
+    for (int i = 0; i < params_count; i++) {
+        err = clSetKernelArg(kernel, i+3, sizeof(int), &params[i]);
+        if (err != CL_SUCCESS)
+        {
+            printf("Failed to set param #%d as a kernel argument (%d)\n", i, err);
+            return;
+        }
+    }
+
+    err = clEnqueueNDRangeKernel(commands, kernel, 2, NULL, (size_t[2]){width, height}, NULL, 0, NULL, NULL);
     if (err != CL_SUCCESS)
     {
-        printf("Failed to enqueue work\n");
+        printf("Failed to enqueue work (%d)\n", err);
         return;
     }
 
     clFinish(commands);
 
-    err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0, sizeof(uint8_t) * len, pixels, 0, NULL, NULL);
+    err = clEnqueueReadImage(commands, output, CL_TRUE, (size_t[3]){0, 0, 0},
+                                (size_t[3]){width, height, 1}, 0, 0, pixels, 0, NULL, NULL);
     if (err != CL_SUCCESS)
     {
-        printf("Failed to enqueue work\n");
+        printf("Failed to enqueue work (%d)\n", err);
         return;
     }
 

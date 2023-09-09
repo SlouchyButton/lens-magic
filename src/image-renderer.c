@@ -15,8 +15,6 @@ void color_saturation_apply(GdkPixbuf* pxb, gdouble val);
 void color_lightness_apply(GdkPixbuf* pxb, gdouble val);
 
 void exposure_apply(GdkPixbuf* pxb, gdouble val) {
-    gboolean has_alpha = gdk_pixbuf_get_has_alpha (pxb);
-
     guint len = 0;
     guchar* pix = NULL;
     pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
@@ -39,12 +37,10 @@ void exposure_apply(GdkPixbuf* pxb, gdouble val) {
       }
     }*/
 
-    hw_set("exposure", pix, 3+has_alpha, len, val);
+    hw_set("exposure", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
 }
 
 void brightness_apply(GdkPixbuf* pxb, gdouble val) {
-    gboolean has_alpha = gdk_pixbuf_get_has_alpha (pxb);
-
     guint len = 0;
     guchar* pix = NULL;
     pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
@@ -67,12 +63,10 @@ void brightness_apply(GdkPixbuf* pxb, gdouble val) {
       }
     }*/
 
-    hw_set("brightness", pix, 3+has_alpha, len, val);
+    hw_set("brightness", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
 }
 
 void contrast_apply(GdkPixbuf* pxb, gdouble val) {
-    gboolean has_alpha = gdk_pixbuf_get_has_alpha (pxb);
-
     guint len = 0;
     guchar* pix = NULL;
     pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
@@ -95,12 +89,10 @@ void contrast_apply(GdkPixbuf* pxb, gdouble val) {
       }
     }*/
 
-    hw_set("contrast", pix, 3+has_alpha, len, val);
+    hw_set("contrast", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
 }
 
 void temperature_apply(GdkPixbuf* pxb, gdouble val) {
-    gboolean has_alpha = gdk_pixbuf_get_has_alpha (pxb);
-
     guint len = 0;
     guchar* pix = NULL;
     pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
@@ -123,16 +115,14 @@ void temperature_apply(GdkPixbuf* pxb, gdouble val) {
         }
     }*/
 
-    hw_set("temperature", pix, 3+has_alpha, len, val);
+    hw_set("temperature", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
 }
 
 void tint_apply(GdkPixbuf* pxb, gdouble val) {
-    gboolean has_alpha = gdk_pixbuf_get_has_alpha (pxb);
-
     guint len = 0;
     guchar* pix = NULL;
     pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    for (int i = 0; i < len; i = i+3+has_alpha) {
+    /*for (int i = 0; i < len; i = i+3+has_alpha) {
         int newR = pix[i] + val;
         if (newR > 255) {
           pix[i] = 255;
@@ -157,12 +147,12 @@ void tint_apply(GdkPixbuf* pxb, gdouble val) {
         } else {
           pix[i+1] = newG;
         }
-    }
+    }*/
+
+    hw_set("tint", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
 }
 
 void saturation_apply(GdkPixbuf* pxb, gdouble val) {
-    gboolean has_alpha = gdk_pixbuf_get_has_alpha (pxb);
-
     guint len = 0;
     guchar* pix = NULL;
     pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
@@ -186,23 +176,21 @@ void saturation_apply(GdkPixbuf* pxb, gdouble val) {
         pix[i+1] = rgb.g;
         pix[i+2] = rgb.b;
     }*/
-    hw_set("saturation", pix, 3+has_alpha, len, val);
+    hw_set("saturation", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
 }
 
 void highlights_apply(GdkPixbuf* pxb, gdouble val) {
-    gboolean has_alpha = gdk_pixbuf_get_has_alpha (pxb);
-
     guint len = 0;
     guchar* pix = NULL;
     pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    for (int i = 0; i < len; i = i+3+has_alpha) {
+    /*for (int i = 0; i < len; i = i+3+has_alpha) {
         RGBPixel rgb = {pix[i], pix[i+1], pix[i+2]};
 
         HSLPixel hsl = rgb_to_hsl(rgb);
 
         gdouble coefficient = (1 - hsl.l*2.5)*-1;
         if (coefficient < 0)
-            coefficient = 0;
+            coefficient = 0;*/
 
         /*if (hsl.l + val*coefficient > 1) {
             hsl.l = 1;
@@ -217,41 +205,40 @@ void highlights_apply(GdkPixbuf* pxb, gdouble val) {
         pix[i+1] = rgb.g;
         pix[i+2] = rgb.b;*/
 
-        gdouble modifier = (val) * coefficient + 1;
+        /*gdouble modifier = (val) * coefficient + 1;
 
         for (int j = 0; j < 3; j++) {
             int new = modifier*(pix[i+j]-128)+128;
             if (new > 255) {
-              pix[i] = 255;
-              pix[i+1] = 255;
-              pix[i+2] = 255;
-              break;
+                pix[i] = 255;
+                pix[i+1] = 255;
+                pix[i+2] = 255;
+                break;
             } else if (new < 0) {
-              pix[i] = 0;
-              pix[i+1] = 0;
-              pix[i+2] = 0;
-              break;
+                pix[i] = 0;
+                pix[i+1] = 0;
+                pix[i+2] = 0;
+                break;
             } else {
-              pix[i+j] = new;
+                pix[i+j] = new;
             }
         }
-    }
+    }*/
+    hw_set("highlights", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
 }
 
 void shadows_apply(GdkPixbuf* pxb, gdouble val) {
-    gboolean has_alpha = gdk_pixbuf_get_has_alpha (pxb);
-
     guint len = 0;
     guchar* pix = NULL;
     pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    for (int i = 0; i < len; i = i+3+has_alpha) {
+    /*for (int i = 0; i < len; i = i+3+has_alpha) {
         RGBPixel rgb = {pix[i], pix[i+1], pix[i+2]};
 
         HSLPixel hsl = rgb_to_hsl(rgb);
 
         gdouble coefficient = 1 - hsl.l*2.5;
         if (coefficient < 0)
-            coefficient = 0;
+            coefficient = 0;*/
 
         /*if (hsl.l + val*coefficient > 1) {
             hsl.l = 1;
@@ -266,7 +253,7 @@ void shadows_apply(GdkPixbuf* pxb, gdouble val) {
         pix[i+1] = rgb.g;
         pix[i+2] = rgb.b;*/
 
-        gdouble modifier = (val * -1) * coefficient + 1;
+        /*gdouble modifier = (val * -1) * coefficient + 1;
 
         for (int j = 0; j < 3; j++) {
             int new = modifier*(pix[i+j]-128)+128;
@@ -284,16 +271,15 @@ void shadows_apply(GdkPixbuf* pxb, gdouble val) {
               pix[i+j] = new;
             }
         }
-    }
+    }*/
+    hw_set("shadows", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
 }
 
 void color_hue_apply(GdkPixbuf* pxb, gdouble val) {
-    gboolean has_alpha = gdk_pixbuf_get_has_alpha (pxb);
-
     guint len = 0;
     guchar* pix = NULL;
     pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    for (int i = 0; i < len; i = i+3+has_alpha) {
+    /*for (int i = 0; i < len; i = i+3+has_alpha) {
         RGBPixel rgb = {pix[i], pix[i+1], pix[i+2]};
 
         HSLPixel hsl = rgb_to_hsl(rgb);
@@ -311,16 +297,16 @@ void color_hue_apply(GdkPixbuf* pxb, gdouble val) {
         pix[i] = rgb.r;
         pix[i+1] = rgb.g;
         pix[i+2] = rgb.b;
-    }
+    }*/
+    hw_set_params("color_hue", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val,
+                    (int[]){340, 15}, 2);
 }
 
 void color_saturation_apply(GdkPixbuf* pxb, gdouble val) {
-    gboolean has_alpha = gdk_pixbuf_get_has_alpha (pxb);
-
     guint len = 0;
     guchar* pix = NULL;
     pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    for (int i = 0; i < len; i = i+3+has_alpha) {
+    /*/for (int i = 0; i < len; i = i+3+has_alpha) {
         RGBPixel rgb = {pix[i], pix[i+1], pix[i+2]};
 
         HSLPixel hsl = rgb_to_hsl(rgb);
@@ -342,16 +328,16 @@ void color_saturation_apply(GdkPixbuf* pxb, gdouble val) {
         pix[i] = rgb.r;
         pix[i+1] = rgb.g;
         pix[i+2] = rgb.b;
-    }
+    }*/
+    hw_set_params("color_saturation", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val,
+                    (int[]){340, 15}, 2);
 }
 
 void color_lightness_apply(GdkPixbuf* pxb, gdouble val) {
-    gboolean has_alpha = gdk_pixbuf_get_has_alpha (pxb);
-
     guint len = 0;
     guchar* pix = NULL;
     pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    for (int i = 0; i < len; i = i+3+has_alpha) {
+    /*for (int i = 0; i < len; i = i+3+has_alpha) {
         RGBPixel rgb = {pix[i], pix[i+1], pix[i+2]};
 
         HSLPixel hsl = rgb_to_hsl(rgb);
@@ -373,7 +359,9 @@ void color_lightness_apply(GdkPixbuf* pxb, gdouble val) {
         pix[i] = rgb.r;
         pix[i+1] = rgb.g;
         pix[i+2] = rgb.b;
-    }
+    }*/
+    hw_set_params("color_lightness", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val,
+                    (int[]){340, 15}, 2);
 }
 
 void render_pixbuf(GdkPixbuf* pxb, Preset settings) {

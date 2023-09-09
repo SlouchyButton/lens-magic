@@ -106,7 +106,7 @@ static void lens_magic_window_init (LensMagicWindow *self)
     gtk_scale_add_mark (self->saturation_scale, 0, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (self->color_hue_scale, 0, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (self->color_saturation_scale, 0, GTK_POS_BOTTOM, NULL);
-    gtk_scale_add_mark (self->color_lightness_scale, 0, GTK_POS_BOTTOM, NULL);
+    gtk_scale_add_mark (self->color_lightness_scale, 1, GTK_POS_BOTTOM, NULL);
 
     g_signal_connect (self->exposure_scale, "value-changed", (GCallback) exposure_change, self);
     g_signal_connect (self->brightness_scale, "value-changed", (GCallback) brightness_change, self);
@@ -122,6 +122,7 @@ static void lens_magic_window_init (LensMagicWindow *self)
 
     self->pxb_original = gdk_pixbuf_new_from_file_at_size ("/home/slouchy/Pictures/IMG_8130.jpg"/*"/home/slouchy/IMG_8575.jpg"*//*"/home/slouchy/Pictures/f456866088.png"*/,
                                                1920, -1, NULL);
+    self->pxb_original = gdk_pixbuf_add_alpha (self->pxb_original, false, 0, 0, 0);
     g_print ("Bit/sample: %d, Alpha: %d, Channels: %d\n",
              gdk_pixbuf_get_bits_per_sample (self->pxb_original),
              gdk_pixbuf_get_has_alpha (self->pxb_original),

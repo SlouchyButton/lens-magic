@@ -1,0 +1,23 @@
+{
+    "tasks": [
+        {
+            "label": "debug",
+            "type": "shell",
+            //"command": "meson setup builddir && meson configure builddir --buildtype debug && cd build && ninja",
+            "command": "cd builddir && ninja",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        }
+    ],
+    "version": "2.0.0"
+}
