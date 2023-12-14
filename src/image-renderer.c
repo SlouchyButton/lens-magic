@@ -400,7 +400,10 @@ gboolean set_picture(gpointer data) {
 gpointer renderer(gpointer data) {
     RendererControl* con = (RendererControl*)data;
 
-    hw_init();
+    if (hw_init()) {
+      printf("Renderer crashed, couldn't initialize HW renderer\n");
+      return NULL;
+    }
 
     while (!con->kill_thread) {
         g_mutex_lock (&con->data_mutex);

@@ -120,7 +120,7 @@ static void lens_magic_window_init (LensMagicWindow *self)
     g_signal_connect (self->color_saturation_scale, "value-changed", (GCallback) color_saturation_change, self);
     g_signal_connect (self->color_lightness_scale, "value-changed", (GCallback) color_lightness_change, self);
 
-    self->pxb_original = gdk_pixbuf_new_from_file_at_size ("/home/slouchy/Pictures/IMG_8130.jpg"/*"/home/slouchy/IMG_8575.jpg"*//*"/home/slouchy/Pictures/f456866088.png"*/,
+    self->pxb_original = gdk_pixbuf_new_from_file_at_size ("/home/slouchy/Downloads/neom-dfglhJbc4Uc-unsplash.jpg"/*"/home/slouchy/IMG_8575.jpg"*//*"/home/slouchy/Pictures/f456866088.png"*/,
                                                1920, -1, NULL);
     self->pxb_original = gdk_pixbuf_add_alpha (self->pxb_original, false, 0, 0, 0);
     g_print ("Bit/sample: %d, Alpha: %d, Channels: %d\n",
