@@ -179,6 +179,18 @@ void unrealize(GtkWidget *widget) {
     glDeleteProgram (program);*/
 }
 
+void render_fb(GLuint target_fb, GLuint vao, GLuint source_texture, GLuint program, gdouble value) {
+    // Prepare FB 1 and set base texture as input
+    glBindFramebuffer(GL_FRAMEBUFFER, target_fb);
+    glBindTexture(GL_TEXTURE_2D, source_texture);
+    // Prepare program
+    glUseProgram(program);
+    glUniform1f(glGetUniformLocation(program, "value"), value);
+    // Render
+    glBindVertexArray(vao);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+}
+
 gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     if (gtk_gl_area_get_error (area) != NULL)
         return FALSE;
@@ -188,6 +200,7 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     int widget_width = gtk_widget_get_width((GtkWidget*)area);
     int widget_height = gtk_widget_get_height((GtkWidget*)area);
 
+    // Calculate rendering dimensions to fit widget and keep image aspect ratio
     int target_width = widget_width;
     int target_height = ((gdouble)height/width)*widget_width;
     if (target_height > widget_height) {
@@ -197,41 +210,21 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     
     glViewport(0, 0, width, height);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, con->fb1);
+    render_fb(con->fb1, con->VAO, con->tex_base, con->programs.temperature, con->settings.temperature);
+    render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.exposure, con->settings.exposure);
 
-    // Use shader program
-    glUseProgram(con->programs.whiteBalanceProgram);
-    // Set exposure uniform
-    glUniform1f(glGetUniformLocation(con->programs.whiteBalanceProgram, "value"), con->settings.temperature);
-
-    // Render textured quad
-    glBindVertexArray(con->VAO);
-    glBindTexture(GL_TEXTURE_2D, con->tex_base);
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, con->fb2);
-
-    glBindTexture(GL_TEXTURE_2D, con->tex_fb1);
-
-    // Use shader program
-    glUseProgram(con->programs.shaderProgram);
-    // Set exposure uniform
-    glUniform1f(glGetUniformLocation(con->programs.shaderProgram, "value"), con->settings.exposure);
-
-    // Render textured quad
-    glBindVertexArray(con->VAO);
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-
+    // Prepare GTK FB, set FB 2's texture as input and set rendering dimensions based on widget size
     gtk_gl_area_attach_buffers(area);
-    glViewport(0, 0, target_width, target_height); // window size
-    
-    glUseProgram(con->programs.plainTextureProgram);
     glBindTexture(GL_TEXTURE_2D, con->tex_fb2);
+    glViewport(0, 0, target_width, target_height); // widget size
+    // Prepare basic program that flips the view
+    glUseProgram(con->programs.plain);
+    // Final render to GTK Widget
     glBindVertexArray(con->VAO);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
-    /* Flush the contents of the pipeline */
-    glFlush ();
+    // Flush the contents of the pipeline
+    glFlush();
 
-    return TRUE;
+    return true;
 }
