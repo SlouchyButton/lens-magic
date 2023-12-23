@@ -55,16 +55,16 @@
                         <property name="width-request">200</property>
                         <property name="adjustment">
                           <object class="GtkAdjustment">
-                            <property name="lower">-1</property>
-                            <property name="upper">1</property>
-                            <property name="value">0</property>
+                            <property name="lower">0.2</property>
+                            <property name="upper">2</property>
+                            <property name="value">1</property>
                           </object>
                         </property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkEntry" id="exposure_entry">
-                        <property name="text">0.00</property>
+                        <property name="text">1.00</property>
                         <property name="valign">start</property>
                         <property name="max-width-chars">6</property>
                         <property name="input-purpose">0</property>
@@ -88,8 +88,8 @@
                         <property name="width-request">200</property>
                         <property name="adjustment">
                           <object class="GtkAdjustment">
-                            <property name="lower">-100</property>
-                            <property name="upper">100</property>
+                            <property name="lower">-0.5</property>
+                            <property name="upper">0.5</property>
                             <property name="value">0</property>
                           </object>
                         </property>
@@ -234,8 +234,8 @@
                         <property name="width-request">200</property>
                         <property name="adjustment">
                           <object class="GtkAdjustment">
-                            <property name="lower">-50</property>
-                            <property name="upper">50</property>
+                            <property name="lower">-0.3</property>
+                            <property name="upper">0.3</property>
                             <property name="value">0</property>
                           </object>
                         </property>
@@ -464,14 +464,13 @@
             </child>
 
             <child>
-              <object class="GtkPicture" id="picture">
-                <property name="halign">center</property>
-                <property name="valign">center</property>
-                <property name="margin-start">30</property>
-                <property name="margin-end">30</property>
-                <property name="margin-top">30</property>
-                <property name="margin-bottom">30</property>
-                <property name="can-shrink">true</property>
+              <object class="GtkBox" id="testbox">
+                  <property name="halign">fill</property>
+                  <property name="valign">fill</property>
+                  <property name="margin-start">30</property>
+                  <property name="margin-end">30</property>
+                  <property name="margin-top">30</property>
+                  <property name="margin-bottom">30</property>
               </object>
             </child>
           </object>
@@ -490,7 +489,7 @@
         <attribute name="action">win.show-help-overlay</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="yes">_About Lens-magic</attribute>
+        <attribute name="label" translatable="yes">_About Lens Magic</attribute>
         <attribute name="action">app.about</attribute>
       </item>
     </section>

@@ -53,7 +53,7 @@ lens_magic_application_about_action (GSimpleAction *action,
                                      GVariant      *parameter,
                                      gpointer       user_data)
 {
-	static const char *developers[] = {"Unknown", NULL};
+	static const char *developers[] = {"Aleš Nezbeda", NULL};
 	LensMagicApplication *self = user_data;
 	GtkWindow *window = NULL;
 
@@ -62,12 +62,12 @@ lens_magic_application_about_action (GSimpleAction *action,
 	window = gtk_application_get_active_window (GTK_APPLICATION (self));
 
 	adw_show_about_window (window,
-	                       "application-name", "lens-magic",
+	                       "application-name", "Lens Magic",
 	                       "application-icon", "org.slouchybutton.LensMagic",
-	                       "developer-name", "Unknown",
+	                       "developer-name", "Aleš Nezbeda",
 	                       "version", "0.1.0",
 	                       "developers", developers,
-	                       "copyright", "© 2023 Unknown",
+	                       "copyright", "©2023 Aleš Nezbeda",
 	                       NULL);
 }
 

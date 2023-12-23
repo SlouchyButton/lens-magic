@@ -4,7 +4,7 @@
             "label": "debug",
             "type": "shell",
             //"command": "meson setup builddir && meson configure builddir --buildtype debug && cd build && ninja",
-            "command": "cd builddir && ninja",
+            "command": "cd build && ninja",
             "problemMatcher": [],
             "group": {
                 "kind": "build",

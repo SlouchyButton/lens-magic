@@ -5,6 +5,7 @@
 
 #include "color-utils.h"
 #include "image-renderer.h"
+#include <epoxy/gl.h>
 
 struct _LensMagicWindow
 {
@@ -15,7 +16,8 @@ struct _LensMagicWindow
 
     /* Template widgets */
     GtkHeaderBar    *header_bar;
-    GtkPicture      *picture;
+    GtkWidget       *testbox;
+    GtkWidget       *gl_area;
     GdkPixbuf       *pxb_original;
     GdkTexture      *tex_rendered;
 
@@ -58,6 +60,7 @@ void saturation_change(GtkRange* range, LensMagicWindow *self);
 void color_hue_change(GtkRange* range, LensMagicWindow *self);
 void color_saturation_change(GtkRange* range, LensMagicWindow *self);
 void color_lightness_change(GtkRange* range, LensMagicWindow *self);
+void ogl_init(LensMagicWindow* self);
 
 static void lens_magic_window_class_init (LensMagicWindowClass *klass)
 {
@@ -65,7 +68,7 @@ static void lens_magic_window_class_init (LensMagicWindowClass *klass)
 
 	gtk_widget_class_set_template_from_resource (widget_class, "/org/slouchybutton/LensMagic/lens-magic-window.ui");
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, header_bar);
-    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, picture);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, testbox);
 
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, exposure_scale);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, brightness_scale);
@@ -92,11 +95,12 @@ static void lens_magic_window_class_init (LensMagicWindowClass *klass)
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, color_lightness_entry);
 }
 
+
 static void lens_magic_window_init (LensMagicWindow *self)
 {
     gtk_widget_init_template (GTK_WIDGET (self));
 
-    gtk_scale_add_mark (self->exposure_scale, 0, GTK_POS_BOTTOM, NULL);
+    gtk_scale_add_mark (self->exposure_scale, 1, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (self->brightness_scale, 0, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (self->contrast_scale, 1, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (self->highlights_scale, 0, GTK_POS_BOTTOM, NULL);
@@ -120,7 +124,7 @@ static void lens_magic_window_init (LensMagicWindow *self)
     g_signal_connect (self->color_saturation_scale, "value-changed", (GCallback) color_saturation_change, self);
     g_signal_connect (self->color_lightness_scale, "value-changed", (GCallback) color_lightness_change, self);
 
-    self->pxb_original = gdk_pixbuf_new_from_file_at_size ("/home/slouchy/Downloads/neom-dfglhJbc4Uc-unsplash.jpg"/*"/home/slouchy/IMG_8575.jpg"*//*"/home/slouchy/Pictures/f456866088.png"*/,
+    self->pxb_original = gdk_pixbuf_new_from_file_at_size ("/home/slouchy/Downloads/IMG_20230830_173827_2.jpg"/*"/home/slouchy/IMG_8575.jpg"*//*"/home/slouchy/Pictures/f456866088.png"*/,
                                                1920, -1, NULL);
     self->pxb_original = gdk_pixbuf_add_alpha (self->pxb_original, false, 0, 0, 0);
     g_print ("Bit/sample: %d, Alpha: %d, Channels: %d\n",
@@ -130,14 +134,37 @@ static void lens_magic_window_init (LensMagicWindow *self)
 
     self->tex_rendered = gdk_texture_new_for_pixbuf(self->pxb_original);
 
-    gtk_picture_set_paintable (self->picture, GDK_PAINTABLE(self->tex_rendered));
-
     self->con.kill_thread = false;
-    self->con.pending_refresh = false;
-    self->con.picture = self->picture;
+    self->con.pending_refresh = true;
+    self->con.pending_new_picture = true;
     self->con.pxb_original = self->pxb_original;
 
-    g_thread_new("image_renderer", renderer, &self->con);
+    self->gl_area = gtk_gl_area_new();
+    gtk_widget_set_hexpand (self->gl_area, TRUE);
+    gtk_widget_set_vexpand (self->gl_area, TRUE);
+    gtk_widget_set_size_request (self->gl_area, 100, 200);
+    gtk_box_append (GTK_BOX (self->testbox), self->gl_area);
+    self->con.ogl_frame = self->gl_area;
+
+    /* We need to initialize and free GL resources, so we use
+    * the realize and unrealize signals on the widget
+    */
+    g_signal_connect (self->gl_area, "realize", G_CALLBACK (realize), &self->con);
+    g_signal_connect (self->gl_area, "unrealize", G_CALLBACK (unrealize), NULL);
+
+    /* The main "draw" call for GtkGLArea */
+    g_signal_connect (self->gl_area, "render", G_CALLBACK (render), &self->con);
+
+
+    /*GtkWidget *gl_area = gtk_gl_area_new ();
+
+    self->con.ogl_frame = (GtkGLArea*)gl_area;
+
+    gtk_box_append(self->testbox, gl_area);
+
+    g_signal_connect (gl_area, "realize", (GCallback) lolwtf, gl_area);*/
+
+    //g_thread_new("image_renderer", renderer, &self->con);
 }
 
 void redraw_image(LensMagicWindow *self) {
@@ -151,12 +178,14 @@ void redraw_image(LensMagicWindow *self) {
     gtk_picture_set_paintable (self->picture, GDK_PAINTABLE(tex));
     g_object_unref (self->tex_rendered);
     self->tex_rendered = tex;*/
+    self->con.settings = self->settings;
+    gtk_gl_area_queue_render((GtkGLArea*)self->gl_area);
 
-    g_mutex_lock (&self->con.data_mutex);
+    /*g_mutex_lock (&self->con.data_mutex);
     self->con.settings = self->settings;
     self->con.pending_refresh = true;
     g_cond_signal (&self->con.data_cond);
-    g_mutex_unlock (&self->con.data_mutex);
+    g_mutex_unlock (&self->con.data_mutex);*/
 }
 
 void exposure_change(GtkRange* range, LensMagicWindow *self) {

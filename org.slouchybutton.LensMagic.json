@@ -23,22 +23,6 @@
         "*.a"
     ],
     "modules" : [
-	    {
-			"name": "OpenCL-Headers",
-			"buildsystem": "simple",
-            "build-commands": [
-                "cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/app",
-                "cmake --build build --target install"
-            ],
-			"builddir": true,
-			"sources": [
-			{
-				"type": "git",
-				"branch": "main",
-				"url": "https://github.com/KhronosGroup/OpenCL-Headers.git"
-			}
-			]
-	    },
         {
             "name" : "lens-magic",
             "builddir" : true,

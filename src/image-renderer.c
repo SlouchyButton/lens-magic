@@ -1,371 +1,13 @@
 #include "image-renderer.h"
 #include "color-utils.h"
-#include "hw-renderer.h"
+#include <unistd.h>
+#include <epoxy/gl.h>
+#include <epoxy/glx.h>
 
-void exposure_apply(GdkPixbuf* pxb, gdouble val);
-void brightness_apply(GdkPixbuf* pxb, gdouble val);
-void contrast_apply(GdkPixbuf* pxb, gdouble val);
-void highlights_apply(GdkPixbuf* pxb, gdouble val);
-void shadows_apply(GdkPixbuf* pxb, gdouble val);
-void temperature_apply(GdkPixbuf* pxb, gdouble val);
-void tint_apply(GdkPixbuf* pxb, gdouble val);
-void saturation_apply(GdkPixbuf* pxb, gdouble val);
-void color_hue_apply(GdkPixbuf* pxb, gdouble val);
-void color_saturation_apply(GdkPixbuf* pxb, gdouble val);
-void color_lightness_apply(GdkPixbuf* pxb, gdouble val);
-
-void exposure_apply(GdkPixbuf* pxb, gdouble val) {
-    guint len = 0;
-    guchar* pix = NULL;
-    pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    /*for (int i = 0; i < len; i = i+3+has_alpha) {
-      for (int j = 0; j < 3; j++) {
-        int new = pix[i+j] * pow(2, val);
-        if (new > 255) {
-          pix[i] = 255;
-          pix[i+1] = 255;
-          pix[i+2] = 255;
-          break;
-        } else if (new < 0) {
-          pix[i] = 0;
-          pix[i+1] = 0;
-          pix[i+2] = 0;
-          break;
-        } else {
-          pix[i+j] = new;
-        }
-      }
-    }*/
-
-    hw_set("exposure", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
-}
-
-void brightness_apply(GdkPixbuf* pxb, gdouble val) {
-    guint len = 0;
-    guchar* pix = NULL;
-    pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    /*for (int i = 0; i < len; i = i+3+has_alpha) {
-      for (int j = 0; j < 3; j++) {
-        int new = pix[i+j] + val;
-        if (new > 255) {
-          pix[i] = 255;
-          pix[i+1] = 255;
-          pix[i+2] = 255;
-          break;
-        } else if (new < 0) {
-          pix[i] = 0;
-          pix[i+1] = 0;
-          pix[i+2] = 0;
-          break;
-        } else {
-          pix[i+j] = new;
-        }
-      }
-    }*/
-
-    hw_set("brightness", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
-}
-
-void contrast_apply(GdkPixbuf* pxb, gdouble val) {
-    guint len = 0;
-    guchar* pix = NULL;
-    pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    /*for (int i = 0; i < len; i = i+3+has_alpha) {
-      for (int j = 0; j < 3; j++) {
-        int new = val*(pix[i+j]-128)+128;
-        if (new > 255) {
-          pix[i] = 255;
-          pix[i+1] = 255;
-          pix[i+2] = 255;
-          break;
-        } else if (new < 0) {
-          pix[i] = 0;
-          pix[i+1] = 0;
-          pix[i+2] = 0;
-          break;
-        } else {
-          pix[i+j] = new;
-        }
-      }
-    }*/
-
-    hw_set("contrast", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
-}
-
-void temperature_apply(GdkPixbuf* pxb, gdouble val) {
-    guint len = 0;
-    guchar* pix = NULL;
-    pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    /*for (int i = 0; i < len; i = i+3+has_alpha) {
-        int newR = pix[i] + val;
-        if (newR > 255) {
-          pix[i] = 255;
-        } else if (newR < 0) {
-          pix[i] = 0;
-        } else {
-          pix[i] = newR;
-        }
-        int newB = pix[i+2] - val;
-        if (newB > 255) {
-          pix[i+2] = 255;
-        } else if (newB < 0) {
-          pix[i+2] = 0;
-        } else {
-          pix[i+2] = newB;
-        }
-    }*/
-
-    hw_set("temperature", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
-}
-
-void tint_apply(GdkPixbuf* pxb, gdouble val) {
-    guint len = 0;
-    guchar* pix = NULL;
-    pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    /*for (int i = 0; i < len; i = i+3+has_alpha) {
-        int newR = pix[i] + val;
-        if (newR > 255) {
-          pix[i] = 255;
-        } else if (newR < 0) {
-          pix[i] = 0;
-        } else {
-          pix[i] = newR;
-        }
-        int newB = pix[i+2] + val;
-        if (newB > 255) {
-          pix[i+2] = 255;
-        } else if (newB < 0) {
-          pix[i+2] = 0;
-        } else {
-          pix[i+2] = newB;
-        }
-        int newG = pix[i+1] - val;
-        if (newG > 255) {
-          pix[i+1] = 255;
-        } else if (newG < 0) {
-          pix[i+1] = 0;
-        } else {
-          pix[i+1] = newG;
-        }
-    }*/
-
-    hw_set("tint", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
-}
-
-void saturation_apply(GdkPixbuf* pxb, gdouble val) {
-    guint len = 0;
-    guchar* pix = NULL;
-    pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    /*for (int i = 0; i < len; i = i+3+has_alpha) {
-        RGBPixel rgb = {pix[i], pix[i+1], pix[i+2]};
-
-        HSLPixel hsl = rgb_to_hsl(rgb);
-
-        gdouble modifier = hsl.s * val;
-
-        if (hsl.s + modifier > 1) {
-            hsl.s = 1;
-        } else if (hsl.s + modifier < 0) {
-            hsl.s = 0;
-        } else {
-            hsl.s += modifier;
-        }
-
-        rgb = hsl_to_rgb(hsl);
-        pix[i] = rgb.r;
-        pix[i+1] = rgb.g;
-        pix[i+2] = rgb.b;
-    }*/
-    hw_set("saturation", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
-}
-
-void highlights_apply(GdkPixbuf* pxb, gdouble val) {
-    guint len = 0;
-    guchar* pix = NULL;
-    pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    /*for (int i = 0; i < len; i = i+3+has_alpha) {
-        RGBPixel rgb = {pix[i], pix[i+1], pix[i+2]};
-
-        HSLPixel hsl = rgb_to_hsl(rgb);
-
-        gdouble coefficient = (1 - hsl.l*2.5)*-1;
-        if (coefficient < 0)
-            coefficient = 0;*/
-
-        /*if (hsl.l + val*coefficient > 1) {
-            hsl.l = 1;
-        } else if (hsl.l + val*coefficient < 0) {
-            hsl.l = 0;
-        } else {
-            hsl.l += val*coefficient;
-        }
-
-        rgb = hsl_to_rgb(hsl);
-        pix[i] = rgb.r;
-        pix[i+1] = rgb.g;
-        pix[i+2] = rgb.b;*/
-
-        /*gdouble modifier = (val) * coefficient + 1;
-
-        for (int j = 0; j < 3; j++) {
-            int new = modifier*(pix[i+j]-128)+128;
-            if (new > 255) {
-                pix[i] = 255;
-                pix[i+1] = 255;
-                pix[i+2] = 255;
-                break;
-            } else if (new < 0) {
-                pix[i] = 0;
-                pix[i+1] = 0;
-                pix[i+2] = 0;
-                break;
-            } else {
-                pix[i+j] = new;
-            }
-        }
-    }*/
-    hw_set("highlights", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
-}
-
-void shadows_apply(GdkPixbuf* pxb, gdouble val) {
-    guint len = 0;
-    guchar* pix = NULL;
-    pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    /*for (int i = 0; i < len; i = i+3+has_alpha) {
-        RGBPixel rgb = {pix[i], pix[i+1], pix[i+2]};
-
-        HSLPixel hsl = rgb_to_hsl(rgb);
-
-        gdouble coefficient = 1 - hsl.l*2.5;
-        if (coefficient < 0)
-            coefficient = 0;*/
-
-        /*if (hsl.l + val*coefficient > 1) {
-            hsl.l = 1;
-        } else if (hsl.l + val*coefficient < 0) {
-            hsl.l = 0;
-        } else {
-            hsl.l += val*coefficient;
-        }
-
-        rgb = hsl_to_rgb(hsl);
-        pix[i] = rgb.r;
-        pix[i+1] = rgb.g;
-        pix[i+2] = rgb.b;*/
-
-        /*gdouble modifier = (val * -1) * coefficient + 1;
-
-        for (int j = 0; j < 3; j++) {
-            int new = modifier*(pix[i+j]-128)+128;
-            if (new > 255) {
-              pix[i] = 255;
-              pix[i+1] = 255;
-              pix[i+2] = 255;
-              break;
-            } else if (new < 0) {
-              pix[i] = 0;
-              pix[i+1] = 0;
-              pix[i+2] = 0;
-              break;
-            } else {
-              pix[i+j] = new;
-            }
-        }
-    }*/
-    hw_set("shadows", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
-}
-
-void color_hue_apply(GdkPixbuf* pxb, gdouble val) {
-    guint len = 0;
-    guchar* pix = NULL;
-    pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    /*for (int i = 0; i < len; i = i+3+has_alpha) {
-        RGBPixel rgb = {pix[i], pix[i+1], pix[i+2]};
-
-        HSLPixel hsl = rgb_to_hsl(rgb);
-
-        if (hsl.h > 30 && hsl.h < 330)
-            continue;
-
-        if (hsl.h - val < 0) {
-            hsl.h = 360 - val + hsl.h;
-        } else {
-            hsl.h = hsl.h - val;
-        }
-
-        rgb = hsl_to_rgb(hsl);
-        pix[i] = rgb.r;
-        pix[i+1] = rgb.g;
-        pix[i+2] = rgb.b;
-    }*/
-    hw_set_params("color_hue", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val,
-                    (int[]){340, 15}, 2);
-}
-
-void color_saturation_apply(GdkPixbuf* pxb, gdouble val) {
-    guint len = 0;
-    guchar* pix = NULL;
-    pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    /*/for (int i = 0; i < len; i = i+3+has_alpha) {
-        RGBPixel rgb = {pix[i], pix[i+1], pix[i+2]};
-
-        HSLPixel hsl = rgb_to_hsl(rgb);
-
-        if (hsl.h > 30 && hsl.h < 330)
-            continue;
-
-        gdouble modifier = hsl.s * val;
-
-        if (hsl.s + modifier > 1) {
-            hsl.s = 1;
-        } else if (hsl.s + modifier < 0) {
-            hsl.s = 0;
-        } else {
-            hsl.s += modifier;
-        }
-
-        rgb = hsl_to_rgb(hsl);
-        pix[i] = rgb.r;
-        pix[i+1] = rgb.g;
-        pix[i+2] = rgb.b;
-    }*/
-    hw_set_params("color_saturation", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val,
-                    (int[]){340, 15}, 2);
-}
-
-void color_lightness_apply(GdkPixbuf* pxb, gdouble val) {
-    guint len = 0;
-    guchar* pix = NULL;
-    pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
-    /*for (int i = 0; i < len; i = i+3+has_alpha) {
-        RGBPixel rgb = {pix[i], pix[i+1], pix[i+2]};
-
-        HSLPixel hsl = rgb_to_hsl(rgb);
-
-        if (hsl.h > 30 && hsl.h < 330)
-            continue;
-
-        gdouble modifier = hsl.l * val;
-
-        if (hsl.l + modifier > 1) {
-            hsl.l = 1;
-        } else if (hsl.l + modifier < 0) {
-            hsl.l = 0;
-        } else {
-            hsl.l += modifier;
-        }
-
-        rgb = hsl_to_rgb(hsl);
-        pix[i] = rgb.r;
-        pix[i+1] = rgb.g;
-        pix[i+2] = rgb.b;
-    }*/
-    hw_set_params("color_lightness", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val,
-                    (int[]){340, 15}, 2);
-}
+#include "shaders/shaders-source.h"
 
 void render_pixbuf(GdkPixbuf* pxb, Preset settings) {
-    if (settings.exposure != 0)
+    /*if (settings.exposure != 0)
         exposure_apply (pxb, settings.exposure);
     if (settings.brightness != 0)
         brightness_apply (pxb, settings.brightness);
@@ -386,43 +28,210 @@ void render_pixbuf(GdkPixbuf* pxb, Preset settings) {
     if (settings.color_saturation != 0)
         color_saturation_apply (pxb, settings.color_saturation);
     if (settings.color_lightness != 0)
-        color_lightness_apply (pxb, settings.color_lightness);
+        color_lightness_apply (pxb, settings.color_lightness);*/
 }
 
-gboolean set_picture(gpointer data) {
-    RendererControl* con = (RendererControl*)data;
-
-    gtk_picture_set_paintable (con->picture, GDK_PAINTABLE(con->tex_rendered));
-
-    return false;
+GLuint create_shader(const GLchar* const* shader_source, GLuint type) {
+    int status;
+    char status_string[512];
+    GLuint shader = glCreateShader(type);
+    glShaderSource(shader, 1, shader_source, NULL);
+    glCompileShader(shader);
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+    if (!status) {
+        glGetShaderInfoLog(shader, 512, NULL, status_string);
+        printf("Fragment shader compilation failed: %s\n", status_string);
+    }
+    return shader;
 }
 
-gpointer renderer(gpointer data) {
-    RendererControl* con = (RendererControl*)data;
+GLuint create_program(const GLuint vertex_shader, const GLuint fragment_shader) {
+    GLuint program = glCreateProgram();
+    glAttachShader(program, vertex_shader);
+    glAttachShader(program, fragment_shader);
+    glLinkProgram(program);
 
-    if (hw_init()) {
-      printf("Renderer crashed, couldn't initialize HW renderer\n");
-      return NULL;
+    return program;
+}
+
+void prepare_programs(RendererControl* con) {
+    GLuint vertex_shader = create_shader(&default_vs, GL_VERTEX_SHADER);
+    GLuint flipped_vertex_shader  = create_shader(&flipped_vs, GL_VERTEX_SHADER);
+    GLuint plain_shader = create_shader(&default_fs, GL_FRAGMENT_SHADER);
+    GLuint exposure_shader = create_shader(&exposure_fs, GL_FRAGMENT_SHADER);
+    GLuint temperature_shader = create_shader(&temperature_fs, GL_FRAGMENT_SHADER);
+
+    con->programs.plain = create_program(flipped_vertex_shader, plain_shader);
+    con->programs.exposure = create_program(vertex_shader, exposure_shader);
+    con->programs.temperature = create_program(vertex_shader, temperature_shader);
+
+    // Delete the shaders as they're linked into our program now and no longer necessary
+    glDeleteShader(vertex_shader);
+    glDeleteShader(flipped_vertex_shader);
+    glDeleteShader(plain_shader);
+    glDeleteShader(exposure_shader);
+    glDeleteShader(temperature_shader);
+}
+
+void prepare_textures(RendererControl* con) {
+    printf("Uploading new texture\n");
+    guint len = 0;
+    guchar* pix = gdk_pixbuf_get_pixels_with_length (con->pxb_original, &len);
+    int width = gdk_pixbuf_get_width(con->pxb_original);
+    int height = gdk_pixbuf_get_height(con->pxb_original);
+
+    // Initialize Base texture - this will contain original image
+    glGenTextures(1, &con->tex_base);
+    glBindTexture(GL_TEXTURE_2D, con->tex_base);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pix);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    // FB 1 Texture
+    glBindFramebuffer(GL_FRAMEBUFFER, con->fb1);
+        glGenTextures(1, &con->tex_fb1);
+        glBindTexture(GL_TEXTURE_2D, con->tex_fb1);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, con->tex_fb1, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // FB 2 Texture
+    glBindFramebuffer(GL_FRAMEBUFFER, con->fb2);
+        glGenTextures(1, &con->tex_fb2);
+        glBindTexture(GL_TEXTURE_2D, con->tex_fb2);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, con->tex_fb2, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+/* We need to set up our state when we realize the GtkGLArea widget */
+void realize(GtkWidget *widget, RendererControl* con) {
+    gtk_gl_area_make_current (GTK_GL_AREA (widget));
+
+    if (gtk_gl_area_get_error (GTK_GL_AREA (widget)) != NULL) {
+        return;
     }
 
-    while (!con->kill_thread) {
-        g_mutex_lock (&con->data_mutex);
-        while (!con->pending_refresh)
-            g_cond_wait (&con->data_cond, &con->data_mutex);
-        Preset settings = con->settings;
-        con->pending_refresh = false;
-        g_mutex_unlock (&con->data_mutex);
+    prepare_programs(con);
 
-        GdkPixbuf* pxb = gdk_pixbuf_copy(con->pxb_original);
+    float vertices[] = {
+        -3.0f, -1.0f, 0.0f,
+        3.0f, -1.0f, 0.0f,
+        0.0f,  3.0f, 0.0f
+    };  
 
-        render_pixbuf (pxb, settings);
+    // Indices for a quad
+    unsigned int indices[] = {
+        0, 1, 2,
+        /*0, 1, 3, // First triangle
+        1, 2, 3  // Second triangle*/
+    };
 
-        g_object_unref (con->tex_rendered);
-        con->tex_rendered = gdk_texture_new_for_pixbuf(pxb);
-        g_object_unref (pxb);
+    // Generate and bind Vertex Array Object (VAO) and Vertex Buffer Object (VBO)
+    glGenVertexArrays(1, &con->VAO);
+    glGenBuffers(1, &con->VBO);
+    glGenBuffers(1, &con->EBO);
 
-        g_idle_add (set_picture, data);
+    // Bind VAO
+    glBindVertexArray(con->VAO);
+        // Bind VBO and set vertex data
+        glBindBuffer(GL_ARRAY_BUFFER, con->VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        // Bind EBO and set index data
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, con->EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+        // Set vertex attribute pointers
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        // Unbind VAO, VBO, and EBO
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    glGenFramebuffers(1, &con->fb1);
+    glGenFramebuffers(1, &con->fb2);
+
+    prepare_textures(con);
+    
+    printf("Initialized\n");
+}
+
+/* We should tear down the state when unrealizing */
+void unrealize(GtkWidget *widget) {
+    gtk_gl_area_make_current (GTK_GL_AREA (widget));
+
+    if (gtk_gl_area_get_error (GTK_GL_AREA (widget)) != NULL) {
+        return;
     }
 
-    return NULL;
+    /*glDeleteBuffers (1, &position_buffer);
+    glDeleteProgram (program);*/
+}
+
+gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
+    if (gtk_gl_area_get_error (area) != NULL)
+        return FALSE;
+
+    int width = gdk_pixbuf_get_width(con->pxb_original);
+    int height = gdk_pixbuf_get_height(con->pxb_original);
+    int widget_width = gtk_widget_get_width((GtkWidget*)area);
+    int widget_height = gtk_widget_get_height((GtkWidget*)area);
+
+    int target_width = widget_width;
+    int target_height = ((gdouble)height/width)*widget_width;
+    if (target_height > widget_height) {
+        target_width = ((gdouble)width/height)*widget_height;
+        target_height = widget_height;
+    }
+    
+    glViewport(0, 0, width, height);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, con->fb1);
+
+    // Use shader program
+    glUseProgram(con->programs.whiteBalanceProgram);
+    // Set exposure uniform
+    glUniform1f(glGetUniformLocation(con->programs.whiteBalanceProgram, "value"), con->settings.temperature);
+
+    // Render textured quad
+    glBindVertexArray(con->VAO);
+    glBindTexture(GL_TEXTURE_2D, con->tex_base);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, con->fb2);
+
+    glBindTexture(GL_TEXTURE_2D, con->tex_fb1);
+
+    // Use shader program
+    glUseProgram(con->programs.shaderProgram);
+    // Set exposure uniform
+    glUniform1f(glGetUniformLocation(con->programs.shaderProgram, "value"), con->settings.exposure);
+
+    // Render textured quad
+    glBindVertexArray(con->VAO);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+
+    gtk_gl_area_attach_buffers(area);
+    glViewport(0, 0, target_width, target_height); // window size
+    
+    glUseProgram(con->programs.plainTextureProgram);
+    glBindTexture(GL_TEXTURE_2D, con->tex_fb2);
+    glBindVertexArray(con->VAO);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+
+    /* Flush the contents of the pipeline */
+    glFlush ();
+
+    return TRUE;
 }

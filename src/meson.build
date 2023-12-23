@@ -7,24 +7,15 @@ lens_magic_sources = [
   'hw-renderer.c',
 ]
 
-prog_python = find_program('python3')
-kernel_source = custom_target(
-    'kernel-source.h',
-    input : ['prepare-kernel.py', 'kernel-source.cl'],
-    output : 'kernel-source.h',
-    command : [prog_python, '@INPUT0@', '@INPUT1@', '@OUTPUT@'],
-	build_by_default: true
-)
-lib_kernel_source = static_library('kernel-source', [kernel_source])
-kernel_source_dep = declare_dependency(link_with : lib_kernel_source)
+subdir('shaders')
 
 lens_magic_deps = [
   dependency('gtk4'),
-  dependency('OpenCL'),
-  dependency('OpenCL-Headers'),
+  dependency('GL'),
+  dependency('epoxy'),
   dependency('libadwaita-1', version: '>= 1.2'),
   cc.find_library('m', required : false),
-  kernel_source_dep
+  shaders_source_dep
 ]
 
 lens_magic_sources += gnome.compile_resources('lens-magic-resources',
