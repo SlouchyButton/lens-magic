@@ -21,7 +21,16 @@ typedef struct Preset_ {
 typedef struct Programs_ {
     GLuint      plain;
     GLuint      exposure;
+    GLuint      brightness;
+    GLuint      contrast;
+    GLuint      highlights;
+    GLuint      shadows;
     GLuint      temperature;
+    GLuint      tint;
+    GLuint      saturation;
+    GLuint      color_hue;
+    GLuint      color_saturation;
+    GLuint      color_lightness;
 } Programs;
 
 typedef struct RendererControl_ {

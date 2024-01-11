@@ -59,18 +59,36 @@ void prepare_programs(RendererControl* con) {
     GLuint flipped_vertex_shader  = create_shader(&flipped_vs, GL_VERTEX_SHADER);
     GLuint plain_shader = create_shader(&default_fs, GL_FRAGMENT_SHADER);
     GLuint exposure_shader = create_shader(&exposure_fs, GL_FRAGMENT_SHADER);
+    GLuint brightness_shader = create_shader(&brightness_fs, GL_FRAGMENT_SHADER);
+    GLuint contrast_shader = create_shader(&contrast_fs, GL_FRAGMENT_SHADER);
     GLuint temperature_shader = create_shader(&temperature_fs, GL_FRAGMENT_SHADER);
+    GLuint tint_shader = create_shader(&tint_fs, GL_FRAGMENT_SHADER);
+    GLuint saturation_shader = create_shader(&saturation_fs, GL_FRAGMENT_SHADER);
+    GLuint highlights_shader = create_shader(&highlights_fs, GL_FRAGMENT_SHADER);
+    GLuint shadows_shader = create_shader(&shadows_fs, GL_FRAGMENT_SHADER);
 
     con->programs.plain = create_program(flipped_vertex_shader, plain_shader);
     con->programs.exposure = create_program(vertex_shader, exposure_shader);
+    con->programs.brightness = create_program(vertex_shader, brightness_shader);
+    con->programs.contrast = create_program(vertex_shader, contrast_shader);
     con->programs.temperature = create_program(vertex_shader, temperature_shader);
+    con->programs.tint = create_program(vertex_shader, tint_shader);
+    con->programs.saturation = create_program(vertex_shader, saturation_shader);
+    con->programs.highlights = create_program(vertex_shader, highlights_shader);
+    con->programs.shadows = create_program(vertex_shader, shadows_shader);
 
     // Delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex_shader);
     glDeleteShader(flipped_vertex_shader);
     glDeleteShader(plain_shader);
     glDeleteShader(exposure_shader);
+    glDeleteShader(brightness_shader);
+    glDeleteShader(contrast_shader);
     glDeleteShader(temperature_shader);
+    glDeleteShader(tint_shader);
+    glDeleteShader(saturation_shader);
+    glDeleteShader(highlights_shader);
+    glDeleteShader(shadows_shader);
 }
 
 void prepare_textures(RendererControl* con) {
@@ -212,6 +230,12 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
 
     render_fb(con->fb1, con->VAO, con->tex_base, con->programs.temperature, con->settings.temperature);
     render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.exposure, con->settings.exposure);
+    render_fb(con->fb1, con->VAO, con->tex_fb2, con->programs.brightness, con->settings.brightness);
+    render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.contrast, con->settings.contrast);
+    render_fb(con->fb1, con->VAO, con->tex_fb2, con->programs.tint, con->settings.tint);
+    render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.saturation, con->settings.saturation);
+    render_fb(con->fb1, con->VAO, con->tex_fb2, con->programs.highlights, con->settings.highlights);
+    render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.shadows, con->settings.shadows);
 
     // Prepare GTK FB, set FB 2's texture as input and set rendering dimensions based on widget size
     gtk_gl_area_attach_buffers(area);

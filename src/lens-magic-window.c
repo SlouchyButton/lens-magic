@@ -61,6 +61,7 @@ void color_hue_change(GtkRange* range, LensMagicWindow *self);
 void color_saturation_change(GtkRange* range, LensMagicWindow *self);
 void color_lightness_change(GtkRange* range, LensMagicWindow *self);
 void ogl_init(LensMagicWindow* self);
+void redraw_image(LensMagicWindow *self);
 
 static void lens_magic_window_class_init (LensMagicWindowClass *klass)
 {
@@ -124,6 +125,12 @@ static void lens_magic_window_init (LensMagicWindow *self)
     g_signal_connect (self->color_saturation_scale, "value-changed", (GCallback) color_saturation_change, self);
     g_signal_connect (self->color_lightness_scale, "value-changed", (GCallback) color_lightness_change, self);
 
+    self->settings.exposure = 1;
+    self->settings.brightness = 0;
+    self->settings.contrast = 1;
+    self->settings.highlights = 0;
+    self->settings.shadows = 0;
+
     self->pxb_original = gdk_pixbuf_new_from_file_at_size ("/home/slouchy/Downloads/IMG_20230830_173827_2.jpg"/*"/home/slouchy/IMG_8575.jpg"*//*"/home/slouchy/Pictures/f456866088.png"*/,
                                                1920, -1, NULL);
     self->pxb_original = gdk_pixbuf_add_alpha (self->pxb_original, false, 0, 0, 0);
@@ -154,6 +161,8 @@ static void lens_magic_window_init (LensMagicWindow *self)
 
     /* The main "draw" call for GtkGLArea */
     g_signal_connect (self->gl_area, "render", G_CALLBACK (render), &self->con);
+
+    redraw_image(self);
 
 
     /*GtkWidget *gl_area = gtk_gl_area_new ();
