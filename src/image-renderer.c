@@ -212,6 +212,7 @@ void render_fb(GLuint target_fb, GLuint vao, GLuint source_texture, GLuint progr
 gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     if (gtk_gl_area_get_error (area) != NULL)
         return FALSE;
+        
 
     int width = gdk_pixbuf_get_width(con->pxb_original);
     int height = gdk_pixbuf_get_height(con->pxb_original);

@@ -10,6 +10,31 @@
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkHeaderBar" id="header_bar">
+            <child>
+              <object class="GtkButton" id="open_file_button">
+                <property name="label">Open</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="true">Export</property>
+                <property name="margin-end">40</property>
+              </object>
+            </child>
+            <property name="title-widget">
+              <object class="GtkLabel">
+                <property name="label" translatable="yes">Lens Magic</property>
+                <property name="single-line-mode">True</property>
+                <property name="ellipsize">end</property>
+                <property name="width-chars">5</property>
+                <style>
+                  <class name="title"/>
+                </style>
+              </object>
+            </property>
             <child type="end">
               <object class="GtkMenuButton">
                 <property name="icon-name">open-menu-symbolic</property>
@@ -26,440 +51,448 @@
             <property name="hexpand">true</property>
             <property name="vexpand">true</property>
             <child>
-              <object class="GtkBox">
-                <property name="orientation">vertical</property>
-                <property name="margin-top">18</property>
-
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Light</property>
-                    <property name="margin-bottom">10</property>
-                    <style>
-                      <class name="title-2"/>
-                    </style>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Exposure</property>
-                  </object>
-                </child>
+              <object class="GtkScrolledWindow" id="scrolled_window">
+                <property name="propagate-natural-height">true</property>
+                <property name="min-content-width">300</property>
                 <child>
                   <object class="GtkBox">
-                    <property name="orientation">horizontal</property>
+                    <property name="orientation">vertical</property>
+                    <property name="margin-top">18</property>
+
                     <child>
-                      <object class="GtkScale" id="exposure_scale">
-                        <property name="orientation">0</property>
-                        <property name="margin-bottom">18</property>
-                        <property name="width-request">200</property>
-                        <property name="adjustment">
-                          <object class="GtkAdjustment">
-                            <property name="lower">0.2</property>
-                            <property name="upper">1.8</property>
-                            <property name="value">1</property>
+                      <object class="GtkLabel">
+                        <property name="label">Light</property>
+                        <property name="margin-bottom">10</property>
+                        <style>
+                          <class name="title-2"/>
+                        </style>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Exposure</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkScale" id="exposure_scale">
+                            <property name="orientation">0</property>
+                            <property name="margin-bottom">18</property>
+                            <property name="width-request">200</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">0.2</property>
+                                <property name="upper">1.8</property>
+                                <property name="value">1</property>
+                              </object>
+                            </property>
                           </object>
-                        </property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="exposure_entry">
-                        <property name="text">1.00</property>
-                        <property name="valign">start</property>
-                        <property name="max-width-chars">6</property>
-                        <property name="input-purpose">0</property>
-                        <property name="input-hints">2</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Brightness</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">horizontal</property>
-                    <child>
-                      <object class="GtkScale" id="brightness_scale">
-                        <property name="orientation">0</property>
-                        <property name="margin-bottom">18</property>
-                        <property name="width-request">200</property>
-                        <property name="adjustment">
-                          <object class="GtkAdjustment">
-                            <property name="lower">-0.5</property>
-                            <property name="upper">0.5</property>
-                            <property name="value">0</property>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="exposure_entry">
+                            <property name="text">1.00</property>
+                            <property name="valign">start</property>
+                            <property name="max-width-chars">6</property>
+                            <property name="input-purpose">0</property>
+                            <property name="input-hints">2</property>
                           </object>
-                        </property>
+                        </child>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkEntry" id="brightness_entry">
-                        <property name="text">0.00</property>
-                        <property name="valign">start</property>
-                        <property name="max-width-chars">6</property>
-                        <property name="input-purpose">0</property>
-                        <property name="input-hints">2</property>
+                      <object class="GtkLabel">
+                        <property name="label">Brightness</property>
                       </object>
                     </child>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Contrast</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">horizontal</property>
                     <child>
-                      <object class="GtkScale" id="contrast_scale">
-                        <property name="orientation">0</property>
-                        <property name="margin-bottom">18</property>
-                        <property name="width-request">200</property>
-                        <property name="adjustment">
-                          <object class="GtkAdjustment">
-                            <property name="lower">0.7</property>
-                            <property name="upper">1.3</property>
-                            <property name="value">1</property>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkScale" id="brightness_scale">
+                            <property name="orientation">0</property>
+                            <property name="margin-bottom">18</property>
+                            <property name="width-request">200</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">-0.5</property>
+                                <property name="upper">0.5</property>
+                                <property name="value">0</property>
+                              </object>
+                            </property>
                           </object>
-                        </property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="contrast_entry">
-                        <property name="text">1.00</property>
-                        <property name="valign">start</property>
-                        <property name="max-width-chars">6</property>
-                        <property name="input-purpose">0</property>
-                        <property name="input-hints">2</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Highlights</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">horizontal</property>
-                    <child>
-                      <object class="GtkScale" id="highlights_scale">
-                        <property name="orientation">0</property>
-                        <property name="margin-bottom">18</property>
-                        <property name="width-request">200</property>
-                        <property name="adjustment">
-                          <object class="GtkAdjustment">
-                            <property name="lower">-0.4</property>
-                            <property name="upper">0.4</property>
-                            <property name="value">0</property>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="brightness_entry">
+                            <property name="text">0.00</property>
+                            <property name="valign">start</property>
+                            <property name="max-width-chars">6</property>
+                            <property name="input-purpose">0</property>
+                            <property name="input-hints">2</property>
                           </object>
-                        </property>
+                        </child>
                       </object>
                     </child>
-                    <child>
-                      <object class="GtkEntry" id="highlights_entry">
-                        <property name="text">0.00</property>
-                        <property name="valign">start</property>
-                        <property name="max-width-chars">6</property>
-                        <property name="input-purpose">0</property>
-                        <property name="input-hints">2</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
 
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Shadows</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">horizontal</property>
                     <child>
-                      <object class="GtkScale" id="shadows_scale">
-                        <property name="orientation">0</property>
-                        <property name="margin-bottom">18</property>
-                        <property name="width-request">200</property>
-                        <property name="adjustment">
-                          <object class="GtkAdjustment">
-                            <property name="lower">-0.4</property>
-                            <property name="upper">0.4</property>
-                            <property name="value">0</property>
+                      <object class="GtkLabel">
+                        <property name="label">Contrast</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkScale" id="contrast_scale">
+                            <property name="orientation">0</property>
+                            <property name="margin-bottom">18</property>
+                            <property name="width-request">200</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">0.7</property>
+                                <property name="upper">1.3</property>
+                                <property name="value">1</property>
+                              </object>
+                            </property>
                           </object>
-                        </property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="shadows_entry">
-                        <property name="text">0.00</property>
-                        <property name="valign">start</property>
-                        <property name="max-width-chars">6</property>
-                        <property name="input-purpose">0</property>
-                        <property name="input-hints">2</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Color</property>
-                    <property name="margin-bottom">10</property>
-                    <style>
-                      <class name="title-2"/>
-                    </style>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Temperature</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">horizontal</property>
-                    <child>
-                      <object class="GtkScale" id="temperature_scale">
-                        <property name="orientation">0</property>
-                        <property name="margin-bottom">18</property>
-                        <property name="width-request">200</property>
-                        <property name="adjustment">
-                          <object class="GtkAdjustment">
-                            <property name="lower">-0.3</property>
-                            <property name="upper">0.3</property>
-                            <property name="value">0</property>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="contrast_entry">
+                            <property name="text">1.00</property>
+                            <property name="valign">start</property>
+                            <property name="max-width-chars">6</property>
+                            <property name="input-purpose">0</property>
+                            <property name="input-hints">2</property>
                           </object>
-                        </property>
+                        </child>
                       </object>
                     </child>
-                    <child>
-                      <object class="GtkEntry" id="temperature_entry">
-                        <property name="text">0.00</property>
-                        <property name="valign">start</property>
-                        <property name="max-width-chars">6</property>
-                        <property name="input-purpose">0</property>
-                        <property name="input-hints">2</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
 
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Tint</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">horizontal</property>
                     <child>
-                      <object class="GtkScale" id="tint_scale">
-                        <property name="orientation">0</property>
-                        <property name="margin-bottom">18</property>
-                        <property name="width-request">200</property>
-                        <property name="adjustment">
-                          <object class="GtkAdjustment">
-                            <property name="lower">-0.3</property>
-                            <property name="upper">0.3</property>
-                            <property name="value">0</property>
+                      <object class="GtkLabel">
+                        <property name="label">Highlights</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkScale" id="highlights_scale">
+                            <property name="orientation">0</property>
+                            <property name="margin-bottom">18</property>
+                            <property name="width-request">200</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">-0.4</property>
+                                <property name="upper">0.4</property>
+                                <property name="value">0</property>
+                              </object>
+                            </property>
                           </object>
-                        </property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="tint_entry">
-                        <property name="text">0.00</property>
-                        <property name="valign">start</property>
-                        <property name="max-width-chars">6</property>
-                        <property name="input-purpose">0</property>
-                        <property name="input-hints">2</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Saturation</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">horizontal</property>
-                    <child>
-                      <object class="GtkScale" id="saturation_scale">
-                        <property name="orientation">0</property>
-                        <property name="margin-bottom">18</property>
-                        <property name="width-request">200</property>
-                        <property name="adjustment">
-                          <object class="GtkAdjustment">
-                            <property name="lower">-1</property>
-                            <property name="upper">1</property>
-                            <property name="value">0</property>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="highlights_entry">
+                            <property name="text">0.00</property>
+                            <property name="valign">start</property>
+                            <property name="max-width-chars">6</property>
+                            <property name="input-purpose">0</property>
+                            <property name="input-hints">2</property>
                           </object>
-                        </property>
+                        </child>
                       </object>
                     </child>
-                    <child>
-                      <object class="GtkEntry" id="saturation_entry">
-                        <property name="text">0.00</property>
-                        <property name="valign">start</property>
-                        <property name="max-width-chars">6</property>
-                        <property name="input-purpose">0</property>
-                        <property name="input-hints">2</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
 
-
-
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Color adjustment</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">0</property>
-                    <property name="halign">center</property>
-                    <style>
-                      <class name="linked"/>
-                    </style>
                     <child>
-                      <object class="GtkToggleButton" id="color_filter_red">
-                        <property name="active">true</property>
-                        <property name="icon-name">big-dot-symbolic</property>
+                      <object class="GtkLabel">
+                        <property name="label">Shadows</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkToggleButton" id="color_filter_green">
-                        <property name="active">false</property>
-                        <property name="icon-name">big-dot-symbolic</property>
-                        <property name="group">color_filter_red</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkToggleButton" id="color_filter_blue">
-                        <property name="active">false</property>
-                        <property name="icon-name">big-dot-symbolic</property>
-                        <property name="group">color_filter_green</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Hue</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">horizontal</property>
-                    <child>
-                      <object class="GtkScale" id="color_hue_scale">
-                        <property name="orientation">0</property>
-                        <property name="margin-bottom">18</property>
-                        <property name="width-request">200</property>
-                        <property name="adjustment">
-                          <object class="GtkAdjustment">
-                            <property name="lower">-30</property>
-                            <property name="upper">30</property>
-                            <property name="value">0</property>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkScale" id="shadows_scale">
+                            <property name="orientation">0</property>
+                            <property name="margin-bottom">18</property>
+                            <property name="width-request">200</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">-0.4</property>
+                                <property name="upper">0.4</property>
+                                <property name="value">0</property>
+                              </object>
+                            </property>
                           </object>
-                        </property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="color_hue_entry">
-                        <property name="text">0.00</property>
-                        <property name="valign">start</property>
-                        <property name="max-width-chars">6</property>
-                        <property name="input-purpose">0</property>
-                        <property name="input-hints">2</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Saturation</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">horizontal</property>
-                    <child>
-                      <object class="GtkScale" id="color_saturation_scale">
-                        <property name="orientation">0</property>
-                        <property name="margin-bottom">18</property>
-                        <property name="width-request">200</property>
-                        <property name="adjustment">
-                          <object class="GtkAdjustment">
-                            <property name="lower">-1</property>
-                            <property name="upper">1</property>
-                            <property name="value">0</property>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="shadows_entry">
+                            <property name="text">0.00</property>
+                            <property name="valign">start</property>
+                            <property name="max-width-chars">6</property>
+                            <property name="input-purpose">0</property>
+                            <property name="input-hints">2</property>
                           </object>
-                        </property>
+                        </child>
                       </object>
                     </child>
-                    <child>
-                      <object class="GtkEntry" id="color_saturation_entry">
-                        <property name="text">0.00</property>
-                        <property name="valign">start</property>
-                        <property name="max-width-chars">6</property>
-                        <property name="input-purpose">0</property>
-                        <property name="input-hints">2</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
 
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Lightness</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">horizontal</property>
                     <child>
-                      <object class="GtkScale" id="color_lightness_scale">
-                        <property name="orientation">0</property>
-                        <property name="margin-bottom">18</property>
-                        <property name="width-request">200</property>
-                        <property name="adjustment">
-                          <object class="GtkAdjustment">
-                            <property name="lower">0.8</property>
-                            <property name="upper">1.2</property>
-                            <property name="value">1</property>
+                      <object class="GtkLabel">
+                        <property name="label">Color</property>
+                        <property name="margin-bottom">10</property>
+                        <style>
+                          <class name="title-2"/>
+                        </style>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Temperature</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkScale" id="temperature_scale">
+                            <property name="orientation">0</property>
+                            <property name="margin-bottom">18</property>
+                            <property name="width-request">200</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">-0.3</property>
+                                <property name="upper">0.3</property>
+                                <property name="value">0</property>
+                              </object>
+                            </property>
                           </object>
-                        </property>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="temperature_entry">
+                            <property name="text">0.00</property>
+                            <property name="valign">start</property>
+                            <property name="max-width-chars">6</property>
+                            <property name="input-purpose">0</property>
+                            <property name="input-hints">2</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Tint</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkEntry" id="color_lightness_entry">
-                        <property name="text">0.00</property>
-                        <property name="valign">start</property>
-                        <property name="max-width-chars">6</property>
-                        <property name="input-purpose">0</property>
-                        <property name="input-hints">2</property>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkScale" id="tint_scale">
+                            <property name="orientation">0</property>
+                            <property name="margin-bottom">18</property>
+                            <property name="width-request">200</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">-0.3</property>
+                                <property name="upper">0.3</property>
+                                <property name="value">0</property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="tint_entry">
+                            <property name="text">0.00</property>
+                            <property name="valign">start</property>
+                            <property name="max-width-chars">6</property>
+                            <property name="input-purpose">0</property>
+                            <property name="input-hints">2</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Saturation</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkScale" id="saturation_scale">
+                            <property name="orientation">0</property>
+                            <property name="margin-bottom">18</property>
+                            <property name="width-request">200</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">-1</property>
+                                <property name="upper">1</property>
+                                <property name="value">0</property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="saturation_entry">
+                            <property name="text">0.00</property>
+                            <property name="valign">start</property>
+                            <property name="max-width-chars">6</property>
+                            <property name="input-purpose">0</property>
+                            <property name="input-hints">2</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Color adjustment</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">0</property>
+                        <property name="halign">center</property>
+                        <property name="margin-top">10</property>
+                        <property name="margin-bottom">10</property>
+                        <style>
+                          <class name="linked"/>
+                        </style>
+                        <child>
+                          <object class="GtkToggleButton" id="color_filter_red">
+                            <property name="active">true</property>
+                            <property name="label">R</property>
+                            <!--<property name="icon-name">media-record-symbolic</property>-->
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkToggleButton" id="color_filter_green">
+                            <property name="active">false</property>
+                            <property name="label">G</property>
+                            <property name="group">color_filter_red</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkToggleButton" id="color_filter_blue">
+                            <property name="active">false</property>
+                            <property name="label">B</property>
+                            <property name="group">color_filter_green</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Hue</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkScale" id="color_hue_scale">
+                            <property name="orientation">0</property>
+                            <property name="margin-bottom">18</property>
+                            <property name="width-request">200</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">-30</property>
+                                <property name="upper">30</property>
+                                <property name="value">0</property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="color_hue_entry">
+                            <property name="text">0.00</property>
+                            <property name="valign">start</property>
+                            <property name="max-width-chars">6</property>
+                            <property name="input-purpose">0</property>
+                            <property name="input-hints">2</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Saturation</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkScale" id="color_saturation_scale">
+                            <property name="orientation">0</property>
+                            <property name="margin-bottom">18</property>
+                            <property name="width-request">200</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">-1</property>
+                                <property name="upper">1</property>
+                                <property name="value">0</property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="color_saturation_entry">
+                            <property name="text">0.00</property>
+                            <property name="valign">start</property>
+                            <property name="max-width-chars">6</property>
+                            <property name="input-purpose">0</property>
+                            <property name="input-hints">2</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Lightness</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkScale" id="color_lightness_scale">
+                            <property name="orientation">0</property>
+                            <property name="margin-bottom">18</property>
+                            <property name="width-request">200</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">0.8</property>
+                                <property name="upper">1.2</property>
+                                <property name="value">1</property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="color_lightness_entry">
+                            <property name="text">0.00</property>
+                            <property name="valign">start</property>
+                            <property name="max-width-chars">6</property>
+                            <property name="input-purpose">0</property>
+                            <property name="input-hints">2</property>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>
                 </child>
-
               </object>
             </child>
 

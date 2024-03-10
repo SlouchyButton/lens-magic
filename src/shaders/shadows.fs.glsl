@@ -77,7 +77,7 @@ void main() {
    
    vec4 texHSL = rgb_to_hsl(texColor);
 
-   float coefficient = 1 - texHSL.z * 2.5;
+   float coefficient = 1 - texHSL.z * 1.5;
    if (coefficient < 0) {
       coefficient = 0;
    }
