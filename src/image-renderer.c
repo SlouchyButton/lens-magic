@@ -132,7 +132,29 @@ void prepare_textures(RendererControl* con) {
 }
 
 void refresh_textures(RendererControl* con) {
-    prepare_textures(con);
+    guint len = 0;
+    guchar* pix = gdk_pixbuf_get_pixels_with_length (con->pxb_original, &len);
+    int width = gdk_pixbuf_get_width(con->pxb_original);
+    int height = gdk_pixbuf_get_height(con->pxb_original);
+    printf("Refreshing textures textures w:%d,h:%d size:%d\n", width, height, len);
+
+    glBindTexture(GL_TEXTURE_2D, con->tex_base);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pix);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glBindTexture(GL_TEXTURE_2D, con->tex_fb1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glBindTexture(GL_TEXTURE_2D, con->tex_fb2);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 /* We need to set up our state when we realize the GtkGLArea widget */
