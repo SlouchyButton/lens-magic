@@ -35,9 +35,9 @@ typedef struct Programs_ {
 
 typedef struct RendererControl_ {
     // Image data variables
-    GtkWidget       *ogl_frame;
-    GdkPixbuf       *pxb_original;
-    GdkTexture      *tex_rendered;
+    GtkWidget*      ogl_frame;
+    GdkPixbuf*      pxb_original;
+    GdkTexture*     tex_rendered;
     // Control variables
     GMutex          data_mutex;
     GCond           data_cond;

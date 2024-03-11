@@ -17,6 +17,7 @@ struct _LensMagicWindow
     /* Template widgets */
     GtkHeaderBar    *header_bar;
     GtkButton       *open_file_button;
+    GtkButton       *export_button;
 
 
     GtkWidget       *testbox;
@@ -66,8 +67,10 @@ void color_lightness_change(GtkRange* range, LensMagicWindow *self);
 void ogl_init(LensMagicWindow* self);
 void redraw_image(LensMagicWindow *self);
 
-void open_file(LensMagicWindow *self);
+void open_file(GtkButton* btn, LensMagicWindow *self);
 void on_open_response(GObject *source_object, GAsyncResult *res, LensMagicWindow *self);
+void export_file(GtkButton* btn, LensMagicWindow *self);
+void on_export_response(GObject *source_object, GAsyncResult *res, LensMagicWindow *self);
 
 static void lens_magic_window_class_init (LensMagicWindowClass *klass)
 {
@@ -78,6 +81,7 @@ static void lens_magic_window_class_init (LensMagicWindowClass *klass)
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, testbox);
 
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, open_file_button);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, export_button);
 
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, exposure_scale);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, brightness_scale);
@@ -134,6 +138,7 @@ static void lens_magic_window_init (LensMagicWindow *self)
     g_signal_connect (self->color_lightness_scale, "value-changed", (GCallback) color_lightness_change, self);
 
     g_signal_connect (self->open_file_button, "clicked", (GCallback) open_file, self);
+    g_signal_connect (self->export_button, "clicked", (GCallback) export_file, self);
 
     self->settings.exposure = 1;
     self->settings.brightness = 0;
@@ -141,19 +146,13 @@ static void lens_magic_window_init (LensMagicWindow *self)
     self->settings.highlights = 0;
     self->settings.shadows = 0;
 
-    self->pxb_original = gdk_pixbuf_new_from_file_at_size ("/home/slouchy/IMG_8191.jpg",
-                                               1920, -1, NULL);
+    self->pxb_original = gdk_pixbuf_new_from_file ("/home/slouchy/IMG_8191.jpg", NULL);
     self->pxb_original = gdk_pixbuf_add_alpha (self->pxb_original, false, 0, 0, 0);
     g_print ("Bit/sample: %d, Alpha: %d, Channels: %d\n",
              gdk_pixbuf_get_bits_per_sample (self->pxb_original),
              gdk_pixbuf_get_has_alpha (self->pxb_original),
              gdk_pixbuf_get_n_channels (self->pxb_original));
 
-    self->tex_rendered = gdk_texture_new_for_pixbuf(self->pxb_original);
-
-    self->con.kill_thread = false;
-    self->con.pending_refresh = true;
-    self->con.pending_new_picture = true;
     self->con.pxb_original = self->pxb_original;
 
     self->gl_area = gtk_gl_area_new();
@@ -173,20 +172,9 @@ static void lens_magic_window_init (LensMagicWindow *self)
     g_signal_connect (self->gl_area, "render", G_CALLBACK (render), &self->con);
 
     redraw_image(self);
-
-
-    /*GtkWidget *gl_area = gtk_gl_area_new ();
-
-    self->con.ogl_frame = (GtkGLArea*)gl_area;
-
-    gtk_box_append(self->testbox, gl_area);
-
-    g_signal_connect (gl_area, "realize", (GCallback) lolwtf, gl_area);*/
-
-    //g_thread_new("image_renderer", renderer, &self->con);
 }
 
-void open_file(LensMagicWindow *self) {
+void open_file(GtkButton* btn, LensMagicWindow* self) {
     GtkFileDialog *fd = gtk_file_dialog_new();
 
     gtk_file_dialog_open(fd, (GtkWindow *)self, NULL, (GAsyncReadyCallback) on_open_response, self);
@@ -201,43 +189,38 @@ void on_open_response(GObject *source_object, GAsyncResult *res, LensMagicWindow
     g_autofree char *file_name = g_file_get_basename(file);
     g_autofree char *path = g_file_get_path(file);
 
-    self->pxb_original = gdk_pixbuf_new_from_file_at_size (path,
-                                               1920, -1, NULL);
-    self->pxb_original = gdk_pixbuf_add_alpha (self->pxb_original, false, 0, 0, 0);
-    g_print ("Bit/sample: %d, Alpha: %d, Channels: %d\n",
-             gdk_pixbuf_get_bits_per_sample (self->pxb_original),
-             gdk_pixbuf_get_has_alpha (self->pxb_original),
-             gdk_pixbuf_get_n_channels (self->pxb_original));
+    self->pxb_original = gdk_pixbuf_new_from_file(path, NULL);
+    self->pxb_original = gdk_pixbuf_add_alpha(self->pxb_original, false, 0, 0, 0);
+    self->con.pxb_original = self->pxb_original;
 
-    self->tex_rendered = gdk_texture_new_for_pixbuf(self->pxb_original);
+    refresh_textures (&self->con);
+}
 
-    self->con.kill_thread = false;
-    self->con.pending_refresh = true;
-    self->con.pending_new_picture = true;
+void export_file(GtkButton* btn, LensMagicWindow* self) {
+    GtkFileDialog *fd = gtk_file_dialog_new();
+
+    gtk_file_dialog_save(fd, (GtkWindow *)self, NULL, (GAsyncReadyCallback) on_export_response, self);
+}
+
+void on_export_response(GObject *source_object, GAsyncResult *res, LensMagicWindow *self) {
+    GFile *file = gtk_file_dialog_open_finish((GtkFileDialog *)source_object, res, NULL);
+    if (file == NULL)
+    {
+        return;
+    }
+    g_autofree char *file_name = g_file_get_basename(file);
+    g_autofree char *path = g_file_get_path(file);
+
+    self->pxb_original = gdk_pixbuf_new_from_file(path, NULL);
+    self->pxb_original = gdk_pixbuf_add_alpha(self->pxb_original, false, 0, 0, 0);
     self->con.pxb_original = self->pxb_original;
 
     refresh_textures (&self->con);
 }
 
 void redraw_image(LensMagicWindow *self) {
-    /*GdkPixbuf* pxb = gdk_pixbuf_copy(self->pxb_original);
-
-    render_pixbuf (pxb, self->settings);
-
-    GdkTexture* tex = gdk_texture_new_for_pixbuf(pxb);
-    g_object_unref (pxb);
-
-    gtk_picture_set_paintable (self->picture, GDK_PAINTABLE(tex));
-    g_object_unref (self->tex_rendered);
-    self->tex_rendered = tex;*/
     self->con.settings = self->settings;
     gtk_gl_area_queue_render((GtkGLArea*)self->gl_area);
-
-    /*g_mutex_lock (&self->con.data_mutex);
-    self->con.settings = self->settings;
-    self->con.pending_refresh = true;
-    g_cond_signal (&self->con.data_cond);
-    g_mutex_unlock (&self->con.data_mutex);*/
 }
 
 void exposure_change(GtkRange* range, LensMagicWindow *self) {

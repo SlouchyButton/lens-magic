@@ -96,7 +96,6 @@ void prepare_textures(RendererControl* con) {
     guchar* pix = gdk_pixbuf_get_pixels_with_length (con->pxb_original, &len);
     int width = gdk_pixbuf_get_width(con->pxb_original);
     int height = gdk_pixbuf_get_height(con->pxb_original);
-    printf("Preparing textures w:%d,h:%d size:%d\n", width, height, len);
 
     // Initialize Base texture - this will contain original image
     glGenTextures(1, &con->tex_base);
@@ -136,25 +135,39 @@ void refresh_textures(RendererControl* con) {
     guchar* pix = gdk_pixbuf_get_pixels_with_length (con->pxb_original, &len);
     int width = gdk_pixbuf_get_width(con->pxb_original);
     int height = gdk_pixbuf_get_height(con->pxb_original);
-    printf("Refreshing textures textures w:%d,h:%d size:%d\n", width, height, len);
 
+    /*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    glGenFramebuffers(1, &con->fb1);
+    glGenFramebuffers(1, &con->fb2);*/
+    
+    //glGenTextures(1, &con->tex_base);
     glBindTexture(GL_TEXTURE_2D, con->tex_base);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pix);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glBindTexture(GL_TEXTURE_2D, con->tex_fb1);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, con->fb1);
+        //glGenTextures(1, &con->tex_fb1);
+        glBindTexture(GL_TEXTURE_2D, con->tex_fb1);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, con->tex_fb1, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
 
-    glBindTexture(GL_TEXTURE_2D, con->tex_fb2);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, con->fb2);
+        //glGenTextures(1, &con->tex_fb2);
+        glBindTexture(GL_TEXTURE_2D, con->tex_fb2);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, con->tex_fb2, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 /* We need to set up our state when we realize the GtkGLArea widget */
@@ -210,7 +223,7 @@ void realize(GtkWidget *widget, RendererControl* con) {
 
     prepare_textures(con);
     
-    printf("Initialized\n");
+    printf("Initialized OpenGL\n");
 }
 
 /* We should tear down the state when unrealizing */
@@ -240,7 +253,6 @@ void render_fb(GLuint target_fb, GLuint vao, GLuint source_texture, GLuint progr
 gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     if (gtk_gl_area_get_error (area) != NULL)
         return FALSE;
-        
 
     int width = gdk_pixbuf_get_width(con->pxb_original);
     int height = gdk_pixbuf_get_height(con->pxb_original);
@@ -269,12 +281,38 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     // Prepare GTK FB, set FB 2's texture as input and set rendering dimensions based on widget size
     gtk_gl_area_attach_buffers(area);
     glBindTexture(GL_TEXTURE_2D, con->tex_fb2);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glViewport(0, 0, target_width, target_height); // widget size
     // Prepare basic program that flips the view
     glUseProgram(con->programs.plain);
     // Final render to GTK Widget
     glBindVertexArray(con->VAO);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+
+    // Flush the contents of the pipeline
+    glFlush();
+
+    return true;
+}
+
+gboolean export(RendererControl* con, char* path) {
+    int width = gdk_pixbuf_get_width(con->pxb_original);
+    int height = gdk_pixbuf_get_height(con->pxb_original);
+    
+    glViewport(0, 0, width, height);
+
+    render_fb(con->fb1, con->VAO, con->tex_base, con->programs.temperature, con->settings.temperature);
+    render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.exposure, con->settings.exposure);
+    render_fb(con->fb1, con->VAO, con->tex_fb2, con->programs.brightness, con->settings.brightness);
+    render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.contrast, con->settings.contrast);
+    render_fb(con->fb1, con->VAO, con->tex_fb2, con->programs.tint, con->settings.tint);
+    render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.saturation, con->settings.saturation);
+    render_fb(con->fb1, con->VAO, con->tex_fb2, con->programs.highlights, con->settings.highlights);
+    render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.shadows, con->settings.shadows);
+
+    uint8_t* fb_data = calloc(width*height, sizeof(uint8_t));
+
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_INT_8_8_8_8, fb_data);
 
     // Flush the contents of the pipeline
     glFlush();

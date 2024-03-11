@@ -19,7 +19,7 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="export_button">
                 <property name="label" translatable="true">Export</property>
                 <property name="margin-end">40</property>
               </object>
