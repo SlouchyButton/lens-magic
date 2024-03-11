@@ -62,3 +62,4 @@ void refresh_textures(RendererControl* con);
 gboolean render (GtkGLArea* area, GdkGLContext* context, RendererControl* con);
 void unrealize (GtkWidget *widget);
 void realize (GtkWidget *widget, RendererControl* con);
+gboolean export(RendererControl* con, char* path);

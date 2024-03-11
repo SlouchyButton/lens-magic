@@ -310,12 +310,17 @@ gboolean export(RendererControl* con, char* path) {
     render_fb(con->fb1, con->VAO, con->tex_fb2, con->programs.highlights, con->settings.highlights);
     render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.shadows, con->settings.shadows);
 
-    uint8_t* fb_data = calloc(width*height, sizeof(uint8_t));
+    uint8_t* fb_data = calloc(width*height, sizeof(uint8_t)*3);
 
-    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_INT_8_8_8_8, fb_data);
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, fb_data);
 
     // Flush the contents of the pipeline
     glFlush();
+
+    GdkPixbuf* pxbuf = gdk_pixbuf_new_from_data(fb_data, GDK_COLORSPACE_RGB, false, 8, width, height, width*3, NULL, NULL);
+
+    gdk_pixbuf_save(pxbuf, path, "jpeg", NULL, "quality", "100", NULL);
+
 
     return true;
 }

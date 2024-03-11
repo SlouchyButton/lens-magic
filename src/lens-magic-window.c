@@ -23,7 +23,6 @@ struct _LensMagicWindow
     GtkWidget       *testbox;
     GtkWidget       *gl_area;
     GdkPixbuf       *pxb_original;
-    GdkTexture      *tex_rendered;
 
     GtkScale        *exposure_scale;
     GtkScale        *brightness_scale;
@@ -194,6 +193,7 @@ void on_open_response(GObject *source_object, GAsyncResult *res, LensMagicWindow
     self->con.pxb_original = self->pxb_original;
 
     refresh_textures (&self->con);
+    redraw_image(self);
 }
 
 void export_file(GtkButton* btn, LensMagicWindow* self) {
@@ -203,19 +203,14 @@ void export_file(GtkButton* btn, LensMagicWindow* self) {
 }
 
 void on_export_response(GObject *source_object, GAsyncResult *res, LensMagicWindow *self) {
-    GFile *file = gtk_file_dialog_open_finish((GtkFileDialog *)source_object, res, NULL);
+    GFile *file = gtk_file_dialog_save_finish((GtkFileDialog *)source_object, res, NULL);
     if (file == NULL)
     {
         return;
     }
     g_autofree char *file_name = g_file_get_basename(file);
     g_autofree char *path = g_file_get_path(file);
-
-    self->pxb_original = gdk_pixbuf_new_from_file(path, NULL);
-    self->pxb_original = gdk_pixbuf_add_alpha(self->pxb_original, false, 0, 0, 0);
-    self->con.pxb_original = self->pxb_original;
-
-    refresh_textures (&self->con);
+    export(&self->con, path);
 }
 
 void redraw_image(LensMagicWindow *self) {
