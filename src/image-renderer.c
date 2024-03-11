@@ -92,11 +92,11 @@ void prepare_programs(RendererControl* con) {
 }
 
 void prepare_textures(RendererControl* con) {
-    printf("Uploading new texture\n");
     guint len = 0;
     guchar* pix = gdk_pixbuf_get_pixels_with_length (con->pxb_original, &len);
     int width = gdk_pixbuf_get_width(con->pxb_original);
     int height = gdk_pixbuf_get_height(con->pxb_original);
+    printf("Preparing textures w:%d,h:%d size:%d\n", width, height, len);
 
     // Initialize Base texture - this will contain original image
     glGenTextures(1, &con->tex_base);
@@ -105,6 +105,8 @@ void prepare_textures(RendererControl* con) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
+    
+    //upload_texture (con);
     
     // FB 1 Texture
     glBindFramebuffer(GL_FRAMEBUFFER, con->fb1);
@@ -127,6 +129,10 @@ void prepare_textures(RendererControl* con) {
         glBindTexture(GL_TEXTURE_2D, 0);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, con->tex_fb2, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void refresh_textures(RendererControl* con) {
+    prepare_textures(con);
 }
 
 /* We need to set up our state when we realize the GtkGLArea widget */

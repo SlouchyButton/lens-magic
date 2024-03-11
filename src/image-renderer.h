@@ -58,6 +58,7 @@ typedef struct RendererControl_ {
     GLuint          EBO;
 } RendererControl;
 
+void refresh_textures(RendererControl* con);
 gboolean render (GtkGLArea* area, GdkGLContext* context, RendererControl* con);
 void unrealize (GtkWidget *widget);
 void realize (GtkWidget *widget, RendererControl* con);

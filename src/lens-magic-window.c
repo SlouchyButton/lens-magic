@@ -141,7 +141,7 @@ static void lens_magic_window_init (LensMagicWindow *self)
     self->settings.highlights = 0;
     self->settings.shadows = 0;
 
-    self->pxb_original = gdk_pixbuf_new_from_file_at_size ("/home/slouchy/Pictures/IMG_8130.jpg",
+    self->pxb_original = gdk_pixbuf_new_from_file_at_size ("/home/slouchy/IMG_8191.jpg",
                                                1920, -1, NULL);
     self->pxb_original = gdk_pixbuf_add_alpha (self->pxb_original, false, 0, 0, 0);
     g_print ("Bit/sample: %d, Alpha: %d, Channels: %d\n",
@@ -215,6 +215,8 @@ void on_open_response(GObject *source_object, GAsyncResult *res, LensMagicWindow
     self->con.pending_refresh = true;
     self->con.pending_new_picture = true;
     self->con.pxb_original = self->pxb_original;
+
+    refresh_textures (&self->con);
 }
 
 void redraw_image(LensMagicWindow *self) {
