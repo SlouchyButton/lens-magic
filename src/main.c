@@ -5,10 +5,7 @@
 
 #include "lens-magic-application.h"
 
-int
-main (int   argc,
-      char *argv[])
-{
+int main (int argc, char *argv[]) {
 	g_autoptr(LensMagicApplication) app = NULL;
 	int ret;
 

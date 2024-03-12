@@ -2,7 +2,7 @@
 #include "config.h"
 
 #include "lens-magic-application.h"
-#include "lens-magic-window.h"
+#include "lens-magic-windows/lens-magic-window.h"
 
 struct _LensMagicApplication
 {

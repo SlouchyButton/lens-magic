@@ -350,7 +350,7 @@
                       </object>
                     </child>
 
-
+                    <!-- color adjustment -->
 
                     <child>
                       <object class="GtkLabel">

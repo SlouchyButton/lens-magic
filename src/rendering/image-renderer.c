@@ -1,5 +1,4 @@
 #include "image-renderer.h"
-#include "color-utils.h"
 #include <unistd.h>
 #include <epoxy/gl.h>
 #include <epoxy/glx.h>
@@ -92,26 +91,21 @@ void prepare_programs(RendererControl* con) {
 }
 
 void prepare_textures(RendererControl* con) {
-    guint len = 0;
-    guchar* pix = gdk_pixbuf_get_pixels_with_length (con->pxb_original, &len);
-    int width = gdk_pixbuf_get_width(con->pxb_original);
-    int height = gdk_pixbuf_get_height(con->pxb_original);
-
     // Initialize Base texture - this will contain original image
     glGenTextures(1, &con->tex_base);
     glBindTexture(GL_TEXTURE_2D, con->tex_base);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pix);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
-    
+
     //upload_texture (con);
-    
+
     // FB 1 Texture
     glBindFramebuffer(GL_FRAMEBUFFER, con->fb1);
         glGenTextures(1, &con->tex_fb1);
         glBindTexture(GL_TEXTURE_2D, con->tex_fb1);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -122,11 +116,46 @@ void prepare_textures(RendererControl* con) {
     glBindFramebuffer(GL_FRAMEBUFFER, con->fb2);
         glGenTextures(1, &con->tex_fb2);
         glBindTexture(GL_TEXTURE_2D, con->tex_fb2);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0,0, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, 0);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, con->tex_fb2, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void refresh_textures_raw(RendererControl* con) {
+    /*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    glGenFramebuffers(1, &con->fb1);
+    glGenFramebuffers(1, &con->fb2);*/
+
+    //glGenTextures(1, &con->tex_base);
+    glBindTexture(GL_TEXTURE_2D, con->tex_base);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, con->width, con->height, 0, GL_RGBA, GL_UNSIGNED_SHORT, con->image_data);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, con->fb1);
+        //glGenTextures(1, &con->tex_fb1);
+        glBindTexture(GL_TEXTURE_2D, con->tex_fb1);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, con->width, con->height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, con->tex_fb1, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+    glBindFramebuffer(GL_FRAMEBUFFER, con->fb2);
+        //glGenTextures(1, &con->tex_fb2);
+        glBindTexture(GL_TEXTURE_2D, con->tex_fb2);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, con->width, con->height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, con->tex_fb2, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -140,7 +169,7 @@ void refresh_textures(RendererControl* con) {
 
     glGenFramebuffers(1, &con->fb1);
     glGenFramebuffers(1, &con->fb2);*/
-    
+
     //glGenTextures(1, &con->tex_base);
     glBindTexture(GL_TEXTURE_2D, con->tex_base);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pix);
@@ -157,7 +186,7 @@ void refresh_textures(RendererControl* con) {
         glBindTexture(GL_TEXTURE_2D, 0);
         //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, con->tex_fb1, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
+
 
     glBindFramebuffer(GL_FRAMEBUFFER, con->fb2);
         //glGenTextures(1, &con->tex_fb2);
@@ -184,7 +213,7 @@ void realize(GtkWidget *widget, RendererControl* con) {
         -3.0f, -1.0f, 0.0f,
         3.0f, -1.0f, 0.0f,
         0.0f,  3.0f, 0.0f
-    };  
+    };
 
     // Indices for a quad
     unsigned int indices[] = {
@@ -222,7 +251,7 @@ void realize(GtkWidget *widget, RendererControl* con) {
     glGenFramebuffers(1, &con->fb2);
 
     prepare_textures(con);
-    
+
     printf("Initialized OpenGL\n");
 }
 
@@ -254,8 +283,12 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     if (gtk_gl_area_get_error (area) != NULL)
         return FALSE;
 
-    int width = gdk_pixbuf_get_width(con->pxb_original);
-    int height = gdk_pixbuf_get_height(con->pxb_original);
+    /*if (!GDK_IS_PIXBUF(con->pxb_original))
+        return FALSE;
+*/
+
+    int width = con->width;//gdk_pixbuf_get_width(con->pxb_original);
+    int height = con->height;//gdk_pixbuf_get_height(con->pxb_original);
     int widget_width = gtk_widget_get_width((GtkWidget*)area);
     int widget_height = gtk_widget_get_height((GtkWidget*)area);
 
@@ -266,7 +299,7 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
         target_width = ((gdouble)width/height)*widget_height;
         target_height = widget_height;
     }
-    
+
     glViewport(0, 0, width, height);
 
     render_fb(con->fb1, con->VAO, con->tex_base, con->programs.temperature, con->settings.temperature);
@@ -298,7 +331,7 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
 gboolean export(RendererControl* con, char* path) {
     int width = gdk_pixbuf_get_width(con->pxb_original);
     int height = gdk_pixbuf_get_height(con->pxb_original);
-    
+
     glViewport(0, 0, width, height);
 
     render_fb(con->fb1, con->VAO, con->tex_base, con->programs.temperature, con->settings.temperature);
@@ -324,3 +357,8 @@ gboolean export(RendererControl* con, char* path) {
 
     return true;
 }
+
+void redraw_image(GtkGLArea* gl_area) {
+    gtk_gl_area_queue_render(gl_area);
+}
+

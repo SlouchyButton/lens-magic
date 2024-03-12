@@ -37,15 +37,13 @@ typedef struct RendererControl_ {
     // Image data variables
     GtkWidget*      ogl_frame;
     GdkPixbuf*      pxb_original;
-    GdkTexture*     tex_rendered;
-    // Control variables
-    GMutex          data_mutex;
-    GCond           data_cond;
-    gboolean        pending_refresh;
-    gboolean        pending_new_picture;
-    gboolean        kill_thread;
+    unsigned short* image_data;
+    int             height;
+    int             width;
+
     // Adjustments
     Preset          settings;
+
     // OpenGL variables
     GLuint          fb1;
     GLuint          fb2;
@@ -59,7 +57,9 @@ typedef struct RendererControl_ {
 } RendererControl;
 
 void refresh_textures(RendererControl* con);
+void refresh_textures_raw(RendererControl* con);
 gboolean render (GtkGLArea* area, GdkGLContext* context, RendererControl* con);
 void unrealize (GtkWidget *widget);
 void realize (GtkWidget *widget, RendererControl* con);
 gboolean export(RendererControl* con, char* path);
+void redraw_image(GtkGLArea* gl_area);
