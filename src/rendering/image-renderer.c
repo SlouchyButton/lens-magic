@@ -5,31 +5,6 @@
 
 #include "shaders/shaders-source.h"
 
-void render_pixbuf(GdkPixbuf* pxb, Preset settings) {
-    /*if (settings.exposure != 0)
-        exposure_apply (pxb, settings.exposure);
-    if (settings.brightness != 0)
-        brightness_apply (pxb, settings.brightness);
-    if (settings.contrast != 1 && settings.contrast != 0)
-        contrast_apply (pxb, settings.contrast);
-    if (settings.highlights != 0)
-        highlights_apply (pxb, settings.highlights);
-    if (settings.shadows != 0)
-        shadows_apply (pxb, settings.shadows);
-    if (settings.saturation != 0)
-        saturation_apply (pxb, settings.saturation);
-    if (settings.temperature != 0)
-        temperature_apply (pxb, settings.temperature);
-    if (settings.tint != 0)
-        tint_apply (pxb, settings.tint);
-    if (settings.color_hue != 0)
-        color_hue_apply (pxb, settings.color_hue);
-    if (settings.color_saturation != 0)
-        color_saturation_apply (pxb, settings.color_saturation);
-    if (settings.color_lightness != 0)
-        color_lightness_apply (pxb, settings.color_lightness);*/
-}
-
 GLuint create_shader(const GLchar* const* shader_source, GLuint type) {
     int status;
     char status_string[512];
@@ -132,7 +107,7 @@ void refresh_textures_raw(RendererControl* con) {
 
     //glGenTextures(1, &con->tex_base);
     glBindTexture(GL_TEXTURE_2D, con->tex_base);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, con->width, con->height, 0, GL_RGBA, GL_UNSIGNED_SHORT, con->image_data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, con->width, con->height, 0, GL_RGB, GL_UNSIGNED_SHORT, con->image_data);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);

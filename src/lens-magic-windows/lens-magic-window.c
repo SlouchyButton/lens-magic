@@ -129,19 +129,31 @@ void on_open_response(GObject *source_object, GAsyncResult *res, LensMagicWindow
         return;
     }
 
+    libraw_handle->params.use_camera_wb = 1;
+    libraw_handle->params.use_auto_wb = 0;
+    libraw_handle->params.no_auto_bright = 1;
+    libraw_handle->params.output_bps = 16;
+    libraw_handle->params.adjust_maximum_thr = 0.0;
+    libraw_handle->params.user_qual = 12;
+
     if (libraw_open_file(libraw_handle, path)) {
         fprintf(stderr, "Couldn't open file using libraw, trying gdk fallback\n");
         return;
     }
 
-    printf("Processing %s %s\n", libraw_handle->idata.make,
+    printf("Processing %s %s %s\n", path, libraw_handle->idata.make,
            libraw_handle->idata.model);
-
     libraw_unpack(libraw_handle);
     libraw_dcraw_process(libraw_handle);
-    self->con.image_data = (unsigned short *)libraw_handle->image;//libraw_handle->rawdata.raw_image;
-    self->con.width = libraw_handle->sizes.width;//4000;//libraw_handle->rawdata.sizes.width;
-    self->con.height = libraw_handle->sizes.height;//500;//libraw_handle->rawdata.sizes.height;
+    g_autofree libraw_processed_image_t* image = libraw_dcraw_make_mem_image(libraw_handle, NULL);
+
+    free(self->con.image_data);
+    self->con.image_data = calloc(image->width * image->height * 3, sizeof(uint16_t));
+    memcpy(self->con.image_data, image->data, image->width * image->height * 3 * sizeof(uint16_t));
+
+    self->con.width = image->width;
+    self->con.height = image->height;
+    libraw_close(libraw_handle);
 
     /*self->pxb_original = gdk_pixbuf_new_from_file(path, NULL);
     self->pxb_original = gdk_pixbuf_add_alpha(self->pxb_original, false, 0, 0, 0);

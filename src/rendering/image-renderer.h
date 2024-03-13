@@ -37,7 +37,7 @@ typedef struct RendererControl_ {
     // Image data variables
     GtkWidget*      ogl_frame;
     GdkPixbuf*      pxb_original;
-    unsigned short* image_data;
+    uint16_t*       image_data;
     int             height;
     int             width;
 
