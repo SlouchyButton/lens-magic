@@ -86,7 +86,7 @@ void main() {
 
    FragColor = modifier * (texColor-1) + 1;*/
 
-   float coefficient = texHSL.z;
+   float coefficient = texHSL.z * 0.5;
 
    FragColor = ((value * coefficient) * texColor) + texColor;
 }
