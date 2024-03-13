@@ -99,55 +99,17 @@ void prepare_textures(RendererControl* con) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void refresh_textures_raw(RendererControl* con) {
-    /*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    glGenFramebuffers(1, &con->fb1);
-    glGenFramebuffers(1, &con->fb2);*/
-
-    //glGenTextures(1, &con->tex_base);
-    glBindTexture(GL_TEXTURE_2D, con->tex_base);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, con->width, con->height, 0, GL_RGB, GL_UNSIGNED_SHORT, con->image_data);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, con->fb1);
-        //glGenTextures(1, &con->tex_fb1);
-        glBindTexture(GL_TEXTURE_2D, con->tex_fb1);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, con->width, con->height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, con->tex_fb1, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-    glBindFramebuffer(GL_FRAMEBUFFER, con->fb2);
-        //glGenTextures(1, &con->tex_fb2);
-        glBindTexture(GL_TEXTURE_2D, con->tex_fb2);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, con->width, con->height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, con->tex_fb2, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
 void refresh_textures(RendererControl* con) {
-    guint len = 0;
-    guchar* pix = gdk_pixbuf_get_pixels_with_length (con->pxb_original, &len);
-    int width = gdk_pixbuf_get_width(con->pxb_original);
-    int height = gdk_pixbuf_get_height(con->pxb_original);
-
     /*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     glGenFramebuffers(1, &con->fb1);
     glGenFramebuffers(1, &con->fb2);*/
 
     //glGenTextures(1, &con->tex_base);
+
     glBindTexture(GL_TEXTURE_2D, con->tex_base);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pix);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, con->width, con->height, 0, GL_RGB, 
+            con->bit_depth == 16 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE, con->image_data);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -155,7 +117,8 @@ void refresh_textures(RendererControl* con) {
     glBindFramebuffer(GL_FRAMEBUFFER, con->fb1);
         //glGenTextures(1, &con->tex_fb1);
         glBindTexture(GL_TEXTURE_2D, con->tex_fb1);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, con->width, con->height, 0, GL_RGB, 
+                GL_UNSIGNED_BYTE, NULL);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -166,7 +129,8 @@ void refresh_textures(RendererControl* con) {
     glBindFramebuffer(GL_FRAMEBUFFER, con->fb2);
         //glGenTextures(1, &con->tex_fb2);
         glBindTexture(GL_TEXTURE_2D, con->tex_fb2);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, con->width, con->height, 0, GL_RGB, 
+                GL_UNSIGNED_BYTE, NULL);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -238,8 +202,7 @@ void unrealize(GtkWidget *widget) {
         return;
     }
 
-    /*glDeleteBuffers (1, &position_buffer);
-    glDeleteProgram (program);*/
+    //TODO: delete everything and free it
 }
 
 void render_fb(GLuint target_fb, GLuint vao, GLuint source_texture, GLuint program, gdouble value) {
@@ -258,12 +221,11 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     if (gtk_gl_area_get_error (area) != NULL)
         return FALSE;
 
-    /*if (!GDK_IS_PIXBUF(con->pxb_original))
+    if (con->image_data == NULL)
         return FALSE;
-*/
 
-    int width = con->width;//gdk_pixbuf_get_width(con->pxb_original);
-    int height = con->height;//gdk_pixbuf_get_height(con->pxb_original);
+    int width = con->width;
+    int height = con->height;
     int widget_width = gtk_widget_get_width((GtkWidget*)area);
     int widget_height = gtk_widget_get_height((GtkWidget*)area);
 
@@ -304,8 +266,8 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
 }
 
 gboolean export(RendererControl* con, char* path) {
-    int width = gdk_pixbuf_get_width(con->pxb_original);
-    int height = gdk_pixbuf_get_height(con->pxb_original);
+    int width = con->width;
+    int height = con->height;
 
     glViewport(0, 0, width, height);
 
@@ -318,7 +280,7 @@ gboolean export(RendererControl* con, char* path) {
     render_fb(con->fb1, con->VAO, con->tex_fb2, con->programs.highlights, con->settings.highlights);
     render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.shadows, con->settings.shadows);
 
-    uint8_t* fb_data = calloc(width*height, sizeof(uint8_t)*3);
+    g_autofree uint8_t* fb_data = calloc(width*height, sizeof(uint8_t)*3);
 
     glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, fb_data);
 

@@ -40,6 +40,7 @@ typedef struct RendererControl_ {
     uint16_t*       image_data;
     int             height;
     int             width;
+    int             bit_depth;
 
     // Adjustments
     Preset          settings;
@@ -57,7 +58,6 @@ typedef struct RendererControl_ {
 } RendererControl;
 
 void refresh_textures(RendererControl* con);
-void refresh_textures_raw(RendererControl* con);
 gboolean render (GtkGLArea* area, GdkGLContext* context, RendererControl* con);
 void unrealize (GtkWidget *widget);
 void realize (GtkWidget *widget, RendererControl* con);

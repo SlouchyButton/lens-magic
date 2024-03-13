@@ -136,31 +136,37 @@ void on_open_response(GObject *source_object, GAsyncResult *res, LensMagicWindow
     libraw_handle->params.adjust_maximum_thr = 0.0;
     libraw_handle->params.user_qual = 12;
 
-    if (libraw_open_file(libraw_handle, path)) {
-        fprintf(stderr, "Couldn't open file using libraw, trying gdk fallback\n");
-        return;
-    }
 
-    printf("Processing %s %s %s\n", path, libraw_handle->idata.make,
+    if (libraw_open_file(libraw_handle, path) == 0) {
+        printf("Processing %s %s %s\n", path, libraw_handle->idata.make,
            libraw_handle->idata.model);
-    libraw_unpack(libraw_handle);
-    libraw_dcraw_process(libraw_handle);
-    g_autofree libraw_processed_image_t* image = libraw_dcraw_make_mem_image(libraw_handle, NULL);
+        libraw_unpack(libraw_handle);
+        libraw_dcraw_process(libraw_handle);
+        g_autofree libraw_processed_image_t* image = libraw_dcraw_make_mem_image(libraw_handle, NULL);
 
-    free(self->con.image_data);
-    self->con.image_data = calloc(image->width * image->height * 3, sizeof(uint16_t));
-    memcpy(self->con.image_data, image->data, image->width * image->height * 3 * sizeof(uint16_t));
+        free(self->con.image_data);
+        self->con.image_data = calloc(image->width * image->height * 3, sizeof(uint16_t));
+        memcpy(self->con.image_data, image->data, image->width * image->height * 3 * sizeof(uint16_t));
 
-    self->con.width = image->width;
-    self->con.height = image->height;
+        self->con.width = image->width;
+        self->con.height = image->height;
+        self->con.bit_depth = 16;
+    } else {
+        fprintf(stderr, "Couldn't open file using libraw, trying gdk fallback\n");
+        g_autofree GdkPixbuf* pixbuf = gdk_pixbuf_new_from_file(path, NULL);
+        guint len = 0;
+        guchar* pix = gdk_pixbuf_get_pixels_with_length (pixbuf, &len);
+
+        free(self->con.image_data);
+        self->con.image_data = calloc(len, sizeof(guchar));
+        memcpy(self->con.image_data, pix, len * sizeof(guchar));
+        self->con.width = gdk_pixbuf_get_width(pixbuf);
+        self->con.height = gdk_pixbuf_get_height(pixbuf);
+        self->con.bit_depth = 8;
+    }
     libraw_close(libraw_handle);
 
-    /*self->pxb_original = gdk_pixbuf_new_from_file(path, NULL);
-    self->pxb_original = gdk_pixbuf_add_alpha(self->pxb_original, false, 0, 0, 0);
-    self->con.pxb_original = self->pxb_original;*/
-
-    //refresh_textures (&self->con);
-    refresh_textures_raw(&self->con);
+    refresh_textures(&self->con);
     redraw_image((GtkGLArea*)self->gl_area);
 }
 

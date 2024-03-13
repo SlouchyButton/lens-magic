@@ -77,12 +77,16 @@ void main() {
    
    vec4 texHSL = rgb_to_hsl(texColor);
 
-   float coefficient = (1 - texHSL.z * 2.5) * -1;
+   /*float coefficient = (1 - texHSL.z * 2.5) * -1;
    if (coefficient < 0) {
       coefficient = 0;
    }
 
    float modifier = (((value * -1) * coefficient) + 1);
 
-   FragColor = modifier * (texColor-1) + 1;
+   FragColor = modifier * (texColor-1) + 1;*/
+
+   float coefficient = texHSL.z;
+
+   FragColor = ((value * coefficient) * texColor) + texColor;
 }
