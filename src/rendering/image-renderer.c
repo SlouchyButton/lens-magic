@@ -243,6 +243,10 @@ void render_fb(GLuint target_fb, GLuint vao, GLuint source_texture, GLuint progr
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 }
 
+// NOTE: It seems it is not possible to use GL calls and/or use openGL outside GTK callbacks for 
+// GLArea. Not following this results in undefined random behavior such as exporting wrong FB or
+// straightup segfaulting with glReadPixels. Because of this we have to queue exports and any other
+// potential OGL calls and do them on the next render() call
 gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     if (gtk_gl_area_get_error (area) != NULL)
         return FALSE;
