@@ -3,7 +3,9 @@ Fast and easy to use app for photo development and quick tweaks that supports RA
 
 ![App screenshot](screenshot.png)
 
-*Application is in early development and is not ready for production use.*
+*Application is in early development and is not ready for production use. Main branch should be kept in working state.*
+
+Testing and feedback is very appreciated!
 
 This project aims to fill in the gap on Linux for easy to use app for RAW development and image tweaking. Goal of this app is to be easy as possible, follow GNOME style and be fast.
 
@@ -20,7 +22,7 @@ This project aims to fill in the gap on Linux for easy to use app for RAW develo
 
 ## Next steps
 There is a lot of planned features, so these are just the ones that are planned in the near future.
-- Configurable preview size (do not force lower res and allow customization
+- Configurable preview size (do not force lower res and allow customization)
 - More options to adjust images
 - Streamline loading, stop relying on gtk for picture load
 - More export options and formats
