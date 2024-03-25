@@ -37,7 +37,9 @@ typedef struct RendererControl_ {
     // Image data variables
     GtkWidget*      ogl_frame;
     GdkPixbuf*      pxb_original;
-    uint16_t*       image_data;
+    void*           image_data;
+    int             preview_height;
+    int             preview_width;
     int             height;
     int             width;
     int             bit_depth;
@@ -51,10 +53,19 @@ typedef struct RendererControl_ {
     GLuint          tex_base;
     GLuint          tex_fb1;
     GLuint          tex_fb2;
+    GLuint          preview_fb1;
+    GLuint          preview_fb2;
+    GLuint          preview_tex_fb1;
+    GLuint          preview_tex_fb2;
     Programs        programs;
     GLuint          VAO;
     GLuint          VBO;
     GLuint          EBO;
+
+    // Control
+    gboolean        export_pending;
+    char*           export_path;
+    
 } RendererControl;
 
 void refresh_textures(RendererControl* con);

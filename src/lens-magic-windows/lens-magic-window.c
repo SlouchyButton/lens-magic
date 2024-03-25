@@ -166,6 +166,14 @@ void on_open_response(GObject *source_object, GAsyncResult *res, LensMagicWindow
     }
     libraw_close(libraw_handle);
 
+    if (self->con.height > 1080) {
+        self->con.preview_height = self->con.height / 4;
+        self->con.preview_width = self->con.width / 4;
+    } else {
+        self->con.preview_height = self->con.height;
+        self->con.preview_width = self->con.width;
+    }
+
     refresh_textures(&self->con);
     redraw_image((GtkGLArea*)self->gl_area);
 }
@@ -182,9 +190,11 @@ void on_export_response(GObject *source_object, GAsyncResult *res, LensMagicWind
     {
         return;
     }
-    g_autofree char *file_name = g_file_get_basename(file);
-    g_autofree char *path = g_file_get_path(file);
-    export(&self->con, path);
+    //g_autofree char* file_name = g_file_get_basename(file);
+    char* path = g_file_get_path(file);
+    self->con.export_path = path;
+    self->con.export_pending = true;
+    redraw_image((GtkGLArea*)self->gl_area);
 }
 
 
