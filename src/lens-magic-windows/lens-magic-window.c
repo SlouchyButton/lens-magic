@@ -25,6 +25,10 @@ static void lens_magic_window_class_init (LensMagicWindowClass *klass)
 
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, open_file_button);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, export_button);
+    
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, filter_red_button);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, filter_green_button);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, filter_blue_button);
 
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, exposure_scale);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, brightness_scale);
@@ -68,20 +72,24 @@ static void lens_magic_window_init (LensMagicWindow *self)
     gtk_scale_add_mark (self->color_saturation_scale, 0, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (self->color_lightness_scale, 1, GTK_POS_BOTTOM, NULL);*/
 
-    g_signal_connect (self->exposure_scale, "value-changed", (GCallback) exposure_change, self);
-    g_signal_connect (self->brightness_scale, "value-changed", (GCallback) brightness_change, self);
-    g_signal_connect (self->contrast_scale, "value-changed", (GCallback) contrast_change, self);
-    g_signal_connect (self->highlights_scale, "value-changed", (GCallback) highlights_change, self);
-    g_signal_connect (self->shadows_scale, "value-changed", (GCallback) shadows_change, self);
-    g_signal_connect (self->temperature_scale, "value-changed", (GCallback) temperature_change, self);
-    g_signal_connect (self->tint_scale, "value-changed", (GCallback) tint_change, self);
-    g_signal_connect (self->saturation_scale, "value-changed", (GCallback) saturation_change, self);
-    g_signal_connect (self->color_hue_scale, "value-changed", (GCallback) color_hue_change, self);
-    g_signal_connect (self->color_saturation_scale, "value-changed", (GCallback) color_saturation_change, self);
-    g_signal_connect (self->color_lightness_scale, "value-changed", (GCallback) color_lightness_change, self);
+    g_signal_connect(self->exposure_scale, "value-changed", (GCallback) exposure_change, self);
+    g_signal_connect(self->brightness_scale, "value-changed", (GCallback) brightness_change, self);
+    g_signal_connect(self->contrast_scale, "value-changed", (GCallback) contrast_change, self);
+    g_signal_connect(self->highlights_scale, "value-changed", (GCallback) highlights_change, self);
+    g_signal_connect(self->shadows_scale, "value-changed", (GCallback) shadows_change, self);
+    g_signal_connect(self->temperature_scale, "value-changed", (GCallback) temperature_change, self);
+    g_signal_connect(self->tint_scale, "value-changed", (GCallback) tint_change, self);
+    g_signal_connect(self->saturation_scale, "value-changed", (GCallback) saturation_change, self);
+    g_signal_connect(self->color_hue_scale, "value-changed", (GCallback) color_hue_change, self);
+    g_signal_connect(self->color_saturation_scale, "value-changed", (GCallback) color_saturation_change, self);
+    g_signal_connect(self->color_lightness_scale, "value-changed", (GCallback) color_lightness_change, self);
 
-    g_signal_connect (self->open_file_button, "clicked", (GCallback) open_file, self);
-    g_signal_connect (self->export_button, "clicked", (GCallback) export_file, self);
+    g_signal_connect(self->open_file_button, "clicked", (GCallback) open_file, self);
+    g_signal_connect(self->export_button, "clicked", (GCallback) export_file, self);
+
+    g_signal_connect(self->filter_red_button, "clicked", (GCallback) filter_red_button_clicked, self);
+    g_signal_connect(self->filter_green_button, "clicked", (GCallback) filter_green_button_clicked, self);
+    g_signal_connect(self->filter_blue_button, "clicked", (GCallback) filter_blue_button_clicked, self);
 
     self->con.settings.exposure = 1;
     self->con.settings.brightness = 0;
@@ -99,11 +107,11 @@ static void lens_magic_window_init (LensMagicWindow *self)
     /* We need to initialize and free GL resources, so we use
     * the realize and unrealize signals on the widget
     */
-    g_signal_connect (self->gl_area, "realize", G_CALLBACK (realize), &self->con);
-    g_signal_connect (self->gl_area, "unrealize", G_CALLBACK (unrealize), NULL);
+    g_signal_connect(self->gl_area, "realize", G_CALLBACK (realize), &self->con);
+    g_signal_connect(self->gl_area, "unrealize", G_CALLBACK (unrealize), NULL);
 
     /* The main "draw" call for GtkGLArea */
-    g_signal_connect (self->gl_area, "render", G_CALLBACK (render), &self->con);
+    g_signal_connect(self->gl_area, "render", G_CALLBACK (render), &self->con);
 
     redraw_image((GtkGLArea*)self->gl_area);
 }

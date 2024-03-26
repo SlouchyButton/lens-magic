@@ -4,18 +4,22 @@
 #include <math.h>
 #include <epoxy/gl.h>
 
-typedef struct Preset_ {
-    gdouble      exposure;
-    gdouble      brightness;
-    gdouble      contrast;
-    gdouble      highlights;
-    gdouble      shadows;
-    gdouble      temperature;
-    gdouble      tint;
-    gdouble      saturation;
+typedef struct ColorPreset_ {
     gdouble      color_hue;
     gdouble      color_saturation;
     gdouble      color_lightness;
+} ColorPreset;
+
+typedef struct Preset_ {
+    gdouble         exposure;
+    gdouble         brightness;
+    gdouble         contrast;
+    gdouble         highlights;
+    gdouble         shadows;
+    gdouble         temperature;
+    gdouble         tint;
+    gdouble         saturation;
+    ColorPreset     color_presets[3];
 } Preset;
 
 typedef struct Programs_ {

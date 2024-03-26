@@ -367,24 +367,24 @@
                           <class name="linked"/>
                         </style>
                         <child>
-                          <object class="GtkToggleButton" id="color_filter_red">
+                          <object class="GtkToggleButton" id="filter_red_button">
                             <property name="active">true</property>
                             <property name="label">R</property>
                             <!--<property name="icon-name">media-record-symbolic</property>-->
                           </object>
                         </child>
                         <child>
-                          <object class="GtkToggleButton" id="color_filter_green">
+                          <object class="GtkToggleButton" id="filter_green_button">
                             <property name="active">false</property>
                             <property name="label">G</property>
-                            <property name="group">color_filter_red</property>
+                            <property name="group">filter_red_button</property>
                           </object>
                         </child>
                         <child>
-                          <object class="GtkToggleButton" id="color_filter_blue">
+                          <object class="GtkToggleButton" id="filter_blue_button">
                             <property name="active">false</property>
                             <property name="label">B</property>
-                            <property name="group">color_filter_green</property>
+                            <property name="group">filter_green_button</property>
                           </object>
                         </child>
                       </object>
