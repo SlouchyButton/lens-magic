@@ -150,7 +150,7 @@ void on_open_response(GObject *source_object, GAsyncResult *res, LensMagicWindow
 
         self->con.width = image->width;
         self->con.height = image->height;
-        self->con.bit_depth = 16;
+        self->con.bit_depth = image->bits;
     } else {
         fprintf(stderr, "Couldn't open file using libraw, trying gdk fallback\n");
         g_autofree GdkPixbuf* pixbuf = gdk_pixbuf_new_from_file(path, NULL);
@@ -174,7 +174,9 @@ void on_open_response(GObject *source_object, GAsyncResult *res, LensMagicWindow
         self->con.preview_width = self->con.width;
     }
 
-    refresh_textures(&self->con);
+    self->con.texture_refresh_pending = true;
+
+    //refresh_textures(&self->con); 
     redraw_image((GtkGLArea*)self->gl_area);
 }
 

@@ -65,6 +65,8 @@ typedef struct RendererControl_ {
     // Control
     gboolean        export_pending;
     char*           export_path;
+
+    gboolean        texture_refresh_pending;
     
 } RendererControl;
 

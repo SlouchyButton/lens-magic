@@ -5,6 +5,12 @@
 
 #include "shaders/shaders-source.h"
 
+void GLAPIENTRY MessageCallback( GLenum source, GLenum type, GLuint id, GLenum severity, 
+        GLsizei length, const GLchar* message, const void* userParam) {
+    fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n", 
+        (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type, severity, message);
+}
+
 GLuint create_shader(const GLchar* const* shader_source, GLuint type) {
     int status;
     char status_string[512];
@@ -69,7 +75,7 @@ void prepare_textures(RendererControl* con) {
     // Initialize Base texture - this will contain original image
     glGenTextures(1, &con->tex_base);
     glBindTexture(GL_TEXTURE_2D, con->tex_base);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -118,8 +124,11 @@ void prepare_textures(RendererControl* con) {
 }
 
 void refresh_textures(RendererControl* con) {
+    // TODO: We can't just imply that RGB8 and RGB16 are only formats, do it correctly, else it
+    // won't render correctly
     glBindTexture(GL_TEXTURE_2D, con->tex_base);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, con->width, con->height, 0, GL_RGB, 
+        glTexImage2D(GL_TEXTURE_2D, 0, con->bit_depth == 16 ? GL_RGB16 : GL_RGB8, 
+            con->width, con->height, 0, GL_RGB, 
             con->bit_depth == 16 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE, con->image_data);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -164,6 +173,11 @@ void refresh_textures(RendererControl* con) {
 
 /* We need to set up our state when we realize the GtkGLArea widget */
 void realize(GtkWidget *widget, RendererControl* con) {
+    #ifndef NDEBUG
+        glEnable(GL_DEBUG_OUTPUT);
+        glDebugMessageCallback(MessageCallback, 0);
+    #endif
+
     gtk_gl_area_make_current (GTK_GL_AREA (widget));
 
     if (gtk_gl_area_get_error (GTK_GL_AREA (widget)) != NULL) {
@@ -253,6 +267,12 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
 
     if (con->image_data == NULL)
         return FALSE;
+
+    if (con->texture_refresh_pending) {
+        g_print("New image data ready to be shown, switching textures\n");
+        refresh_textures(con);
+        con->texture_refresh_pending = false;
+    }
 
     if (con->export_pending) {
         g_print("Export pending, exporting to %s\n", con->export_path);
