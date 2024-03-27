@@ -84,16 +84,16 @@
                             <property name="width-request">200</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment">
-                                <property name="lower">0.1</property>
-                                <property name="upper">1.9</property>
-                                <property name="value">1</property>
+                                <property name="lower">-0.9</property>
+                                <property name="upper">0.9</property>
+                                <property name="value">0</property>
                               </object>
                             </property>
                           </object>
                         </child>
                         <child>
                           <object class="GtkEntry" id="exposure_entry">
-                            <property name="text">1.00</property>
+                            <property name="text">0.00</property>
                             <property name="valign">start</property>
                             <property name="max-width-chars">6</property>
                             <property name="input-purpose">0</property>
@@ -151,16 +151,16 @@
                             <property name="width-request">200</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment">
-                                <property name="lower">0.8</property>
-                                <property name="upper">1.2</property>
-                                <property name="value">1</property>
+                                <property name="lower">-0.2</property>
+                                <property name="upper">0.2</property>
+                                <property name="value">0</property>
                               </object>
                             </property>
                           </object>
                         </child>
                         <child>
                           <object class="GtkEntry" id="contrast_entry">
-                            <property name="text">1.00</property>
+                            <property name="text">0.00</property>
                             <property name="valign">start</property>
                             <property name="max-width-chars">6</property>
                             <property name="input-purpose">0</property>
@@ -405,8 +405,8 @@
                             <property name="width-request">200</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment">
-                                <property name="lower">-30</property>
-                                <property name="upper">30</property>
+                                <property name="lower">-90</property>
+                                <property name="upper">90</property>
                                 <property name="value">0</property>
                               </object>
                             </property>

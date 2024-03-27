@@ -78,14 +78,9 @@ void main() {
    
    vec4 texHSL = rgb_to_hsl(texColor);
 
-   float coeff = 1 - abs(texHSL.x - hue) / 40;
+   float coeff = max(1 - min(abs(texHSL.x - hue), abs(texHSL.x - 360 - hue)) / 70.0, 0);
 
-   FragColor = vec4(coeff, 0, 0, 0);
+   texHSL.z = texHSL.z * ((value * coeff * (texHSL.y)) + 1);
 
-   /*if (texHSL.x > hue-10 && texHSL.x < hue+10) {
-      FragColor = texColor * (value*coeff+1);
-   } else {
-      FragColor = texColor;
-   }*/
-
+   FragColor = hsl_to_rgb(texHSL);
 }

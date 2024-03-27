@@ -337,12 +337,21 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     render_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.highlights, con->settings.highlights);
     render_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.shadows, con->settings.shadows);
 
-    render_hue_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.color_lightness, con->settings.color_presets[0].color_lightness, 20);
+    render_hue_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.color_lightness, con->settings.color_presets[0].color_lightness, 0);
     render_hue_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.color_lightness, con->settings.color_presets[1].color_lightness, 120);
+    render_hue_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.color_lightness, con->settings.color_presets[2].color_lightness, 240);
+
+    render_hue_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.color_saturation, con->settings.color_presets[0].color_saturation, 0);
+    render_hue_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.color_saturation, con->settings.color_presets[1].color_saturation, 120);
+    render_hue_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.color_saturation, con->settings.color_presets[2].color_saturation, 240);
+
+    render_hue_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.color_hue, con->settings.color_presets[0].color_hue, 0);
+    render_hue_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.color_hue, con->settings.color_presets[1].color_hue, 120);
+    render_hue_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.color_hue, con->settings.color_presets[2].color_hue, 240);
 
     // Prepare GTK FB, set FB 2's texture as input and set rendering dimensions based on widget size
     gtk_gl_area_attach_buffers(area);
-    glBindTexture(GL_TEXTURE_2D, con->preview_tex_fb2);
+    glBindTexture(GL_TEXTURE_2D, con->preview_tex_fb1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glViewport(0, 0, target_width, target_height); // widget size
     // Prepare basic program that flips the view

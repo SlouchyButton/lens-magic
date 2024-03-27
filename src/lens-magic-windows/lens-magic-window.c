@@ -95,9 +95,6 @@ static void lens_magic_window_init (LensMagicWindow *self)
 
     memset(&self->con.settings, 0, sizeof(self->con.settings));
 
-    self->con.settings.exposure = 1;
-    self->con.settings.contrast = 1;
-
     self->gl_area = gtk_gl_area_new();
     gtk_widget_set_hexpand (self->gl_area, TRUE);
     gtk_widget_set_vexpand (self->gl_area, TRUE);

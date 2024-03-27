@@ -3,6 +3,7 @@ in vec2 TexCoord;
 out vec4 FragColor;
 uniform sampler2D image;
 uniform float value;
+uniform int hue;
 
 vec4 rgb_to_hsl(vec4 rgb) {
    vec4 hsl = rgb;
@@ -76,15 +77,13 @@ void main() {
    vec4 texColor = texture(image, TexCoord);
    
    vec4 texHSL = rgb_to_hsl(texColor);
-   
-   float modifier = texHSL.y * value;
 
-   if (texHSL.y + modifier > 1) {
-      texHSL.y = 1;
-   } else if (texHSL.y + modifier < 0) {
-      texHSL.y = 0;
-   } else {
-      texHSL.y += modifier;
+   float coeff = max(1 - min(abs(texHSL.x - hue), abs(texHSL.x - 360 - hue)) / 70.0, 0);
+
+   texHSL.x = texHSL.x + (value * coeff);
+
+   if (texHSL.x < 0) {
+      texHSL.x += 360;
    }
 
    FragColor = hsl_to_rgb(texHSL);
