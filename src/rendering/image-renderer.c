@@ -51,6 +51,10 @@ void prepare_programs(RendererControl* con) {
     GLuint highlights_shader = create_shader(&highlights_fs, GL_FRAGMENT_SHADER);
     GLuint shadows_shader = create_shader(&shadows_fs, GL_FRAGMENT_SHADER);
 
+    GLuint color_hue_shader = create_shader(&color_hue_fs, GL_FRAGMENT_SHADER);
+    GLuint color_saturation_shader = create_shader(&color_saturation_fs, GL_FRAGMENT_SHADER);
+    GLuint color_lightness_shader = create_shader(&color_lightness_fs, GL_FRAGMENT_SHADER);
+
     con->programs.plain = create_program(flipped_vertex_shader, plain_shader);
     con->programs.exposure = create_program(vertex_shader, exposure_shader);
     con->programs.brightness = create_program(vertex_shader, brightness_shader);
@@ -60,6 +64,10 @@ void prepare_programs(RendererControl* con) {
     con->programs.saturation = create_program(vertex_shader, saturation_shader);
     con->programs.highlights = create_program(vertex_shader, highlights_shader);
     con->programs.shadows = create_program(vertex_shader, shadows_shader);
+
+    con->programs.color_hue = create_program(vertex_shader, color_hue_shader);
+    con->programs.color_saturation = create_program(vertex_shader, color_saturation_shader);
+    con->programs.color_lightness = create_program(vertex_shader, color_lightness_shader);
 
     // Delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex_shader);
@@ -73,6 +81,9 @@ void prepare_programs(RendererControl* con) {
     glDeleteShader(saturation_shader);
     glDeleteShader(highlights_shader);
     glDeleteShader(shadows_shader);
+    glDeleteShader(color_hue_shader);
+    glDeleteShader(color_saturation_shader);
+    glDeleteShader(color_lightness_shader);
 }
 
 void prepare_textures(RendererControl* con) {
@@ -261,6 +272,22 @@ void render_fb(GLuint target_fb, GLuint vao, GLuint source_texture, GLuint progr
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 }
 
+// Maybe replace with single function with unlimited values passable by single argument
+// possibly use array with struct containing name and value
+void render_hue_fb(GLuint target_fb, GLuint vao, GLuint source_texture, GLuint program, 
+        gdouble value, GLint hue) {
+    // Prepare FB 1 and set base texture as input
+    glBindFramebuffer(GL_FRAMEBUFFER, target_fb);
+    glBindTexture(GL_TEXTURE_2D, source_texture);
+    // Prepare program
+    glUseProgram(program);
+    glUniform1f(glGetUniformLocation(program, "value"), value);
+    glUniform1i(glGetUniformLocation(program, "hue"), hue);
+    // Render
+    glBindVertexArray(vao);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+}
+
 // NOTE: It seems it is not possible to use GL calls and/or use openGL outside GTK callbacks for 
 // GLArea. Not following this results in undefined random behavior such as exporting wrong FB or
 // straightup segfaulting with glReadPixels. Because of this we have to queue exports and any other
@@ -309,6 +336,9 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     render_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.saturation, con->settings.saturation);
     render_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.highlights, con->settings.highlights);
     render_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.shadows, con->settings.shadows);
+
+    render_hue_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.color_lightness, con->settings.color_presets[0].color_lightness, 20);
+    render_hue_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.color_lightness, con->settings.color_presets[1].color_lightness, 120);
 
     // Prepare GTK FB, set FB 2's texture as input and set rendering dimensions based on widget size
     gtk_gl_area_attach_buffers(area);

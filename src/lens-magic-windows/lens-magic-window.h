@@ -30,6 +30,7 @@ struct _LensMagicWindow {
     GtkToggleButton*    filter_red_button;
     GtkToggleButton*    filter_green_button;
     GtkToggleButton*    filter_blue_button;
+    int                 selected_filter;
 
     GtkScale*           exposure_scale;
     GtkScale*           brightness_scale;

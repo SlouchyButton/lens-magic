@@ -11,7 +11,10 @@ void set_entry_value(GtkEntry* entry, gdouble value) {
     gtk_entry_buffer_set_text (entry_buf, str_val->str, -1);
 }
 
-// Light callbacks
+
+//-----------------//
+// Light callbacks //
+//-----------------//
 
 void exposure_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
@@ -53,7 +56,10 @@ void shadows_change(GtkRange* range, LensMagicWindow *self) {
     redraw_image ((GtkGLArea*)self->gl_area);
 }
 
-// Color callbacks
+
+//-----------------//
+// Color callbacks //
+//-----------------//
 
 void temperature_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
@@ -80,30 +86,46 @@ void saturation_change(GtkRange* range, LensMagicWindow *self) {
 }
 
 
-// Color filter callbacks
+//------------------------//
+// Color filter callbacks //
+//------------------------//
+
+void refresh_ranges(LensMagicWindow* self) {
+    gtk_range_set_value((GtkRange*)self->color_hue_scale, 
+        self->con.settings.color_presets[self->selected_filter].color_hue);
+    gtk_range_set_value((GtkRange*)self->color_saturation_scale, 
+        self->con.settings.color_presets[self->selected_filter].color_saturation);
+    gtk_range_set_value((GtkRange*)self->color_lightness_scale, 
+        self->con.settings.color_presets[self->selected_filter].color_lightness);
+
+    set_entry_value(self->color_hue_entry, 
+        self->con.settings.color_presets[self->selected_filter].color_hue);
+    set_entry_value(self->color_saturation_entry, 
+        self->con.settings.color_presets[self->selected_filter].color_saturation);
+    set_entry_value(self->color_lightness_entry, 
+        self->con.settings.color_presets[self->selected_filter].color_lightness);
+}
+
 void filter_red_button_clicked(GtkToggleButton* btn, LensMagicWindow* self) {
-    return;
+    self->selected_filter = 0;
+    refresh_ranges(self);
 }
+
 void filter_green_button_clicked(GtkToggleButton* btn, LensMagicWindow* self) {
-    return;
+    self->selected_filter = 1;
+    refresh_ranges(self);
 }
+
 void filter_blue_button_clicked(GtkToggleButton* btn, LensMagicWindow* self) {
-    return;
+    self->selected_filter = 2;
+    refresh_ranges(self);
 }
 
 void color_hue_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->color_hue_entry, val);
 
-    if (gtk_toggle_button_get_active(self->filter_red_button)) {
-        self->con.settings.color_presets[0].color_hue = val;
-    }
-    if (gtk_toggle_button_get_active(self->filter_green_button)) {
-        self->con.settings.color_presets[1].color_hue = val;
-    }
-    if (gtk_toggle_button_get_active(self->filter_blue_button)) {
-        self->con.settings.color_presets[2].color_hue = val;
-    }
+    self->con.settings.color_presets[self->selected_filter].color_hue = val;
 
     redraw_image ((GtkGLArea*)self->gl_area);
 }
@@ -112,15 +134,7 @@ void color_saturation_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->color_saturation_entry, val);
 
-    if (gtk_toggle_button_get_active(self->filter_red_button)) {
-        self->con.settings.color_presets[0].color_saturation = val;
-    }
-    if (gtk_toggle_button_get_active(self->filter_green_button)) {
-        self->con.settings.color_presets[1].color_saturation = val;
-    }
-    if (gtk_toggle_button_get_active(self->filter_blue_button)) {
-        self->con.settings.color_presets[2].color_saturation = val;
-    }
+    self->con.settings.color_presets[self->selected_filter].color_saturation = val;
 
     redraw_image ((GtkGLArea*)self->gl_area);
 }
@@ -129,15 +143,7 @@ void color_lightness_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->color_lightness_entry, val);
     
-    if (gtk_toggle_button_get_active(self->filter_red_button)) {
-        self->con.settings.color_presets[0].color_lightness = val;
-    }
-    if (gtk_toggle_button_get_active(self->filter_green_button)) {
-        self->con.settings.color_presets[1].color_lightness = val;
-    }
-    if (gtk_toggle_button_get_active(self->filter_blue_button)) {
-        self->con.settings.color_presets[2].color_lightness = val;
-    }
+    self->con.settings.color_presets[self->selected_filter].color_lightness = val;
 
     redraw_image ((GtkGLArea*)self->gl_area);
 }

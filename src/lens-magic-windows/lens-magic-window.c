@@ -91,11 +91,12 @@ static void lens_magic_window_init (LensMagicWindow *self)
     g_signal_connect(self->filter_green_button, "clicked", (GCallback) filter_green_button_clicked, self);
     g_signal_connect(self->filter_blue_button, "clicked", (GCallback) filter_blue_button_clicked, self);
 
+    self->selected_filter = 0;
+
+    memset(&self->con.settings, 0, sizeof(self->con.settings));
+
     self->con.settings.exposure = 1;
-    self->con.settings.brightness = 0;
     self->con.settings.contrast = 1;
-    self->con.settings.highlights = 0;
-    self->con.settings.shadows = 0;
 
     self->gl_area = gtk_gl_area_new();
     gtk_widget_set_hexpand (self->gl_area, TRUE);
