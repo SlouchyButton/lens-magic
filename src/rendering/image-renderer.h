@@ -20,6 +20,8 @@ typedef struct Preset_ {
     gdouble         tint;
     gdouble         saturation;
     ColorPreset     color_presets[3];
+    gdouble         noise_reduction;
+    gdouble         noise_reduction_sharpen;
 } Preset;
 
 typedef struct Programs_ {
@@ -35,6 +37,7 @@ typedef struct Programs_ {
     GLuint      color_hue;
     GLuint      color_saturation;
     GLuint      color_lightness;
+    GLuint      denoise;
 } Programs;
 
 typedef struct RendererControl_ {
@@ -67,6 +70,7 @@ typedef struct RendererControl_ {
     GLuint          EBO;
 
     // Control
+    gboolean        show_original;
     gboolean        export_pending;
     char*           export_path;
 

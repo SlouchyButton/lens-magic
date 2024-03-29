@@ -22,6 +22,7 @@ struct _LensMagicWindow {
     GtkHeaderBar*       header_bar;
     GtkButton*          open_file_button;
     GtkButton*          export_button;
+    GtkSwitch*          original_switch;
 
     GtkWidget*          testbox;
     GtkWidget*          gl_area;
@@ -43,6 +44,8 @@ struct _LensMagicWindow {
     GtkScale*           color_hue_scale;
     GtkScale*           color_saturation_scale;
     GtkScale*           color_lightness_scale;
+    GtkScale*           noise_reduction_scale;
+    GtkScale*           noise_reduction_sharpen_scale;
 
     GtkEntry*           exposure_entry;
     GtkEntry*           brightness_entry;
@@ -55,5 +58,7 @@ struct _LensMagicWindow {
     GtkEntry*           color_hue_entry;
     GtkEntry*           color_saturation_entry;
     GtkEntry*           color_lightness_entry;
+    GtkEntry*           noise_reduction_entry;
+    GtkEntry*           noise_reduction_sharpen_entry;
 };
 

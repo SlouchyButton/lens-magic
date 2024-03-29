@@ -11,6 +11,14 @@ void set_entry_value(GtkEntry* entry, gdouble value) {
     gtk_entry_buffer_set_text (entry_buf, str_val->str, -1);
 }
 
+//----------------//
+// Misc callbacks //
+//----------------//
+gboolean original_switch_state_set(GtkSwitch* sw, gboolean state, LensMagicWindow* self) {
+    self->con.show_original = state;
+    redraw_image ((GtkGLArea*)self->gl_area);
+    return false;
+}
 
 //-----------------//
 // Light callbacks //
@@ -148,3 +156,18 @@ void color_lightness_change(GtkRange* range, LensMagicWindow *self) {
     redraw_image ((GtkGLArea*)self->gl_area);
 }
 
+void noise_reduction_change(GtkRange* range, LensMagicWindow *self) {
+    gdouble val = gtk_range_get_value (range);
+    set_entry_value(self->noise_reduction_entry, val);
+    self->con.settings.noise_reduction = val;
+
+    redraw_image ((GtkGLArea*)self->gl_area);
+}
+
+void noise_reduction_sharpen_change(GtkRange* range, LensMagicWindow *self) {
+    gdouble val = gtk_range_get_value (range);
+    set_entry_value(self->noise_reduction_sharpen_entry, val);
+    self->con.settings.noise_reduction_sharpen = val;
+
+    redraw_image ((GtkGLArea*)self->gl_area);
+}

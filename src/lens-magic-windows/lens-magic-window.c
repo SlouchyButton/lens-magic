@@ -25,6 +25,7 @@ static void lens_magic_window_class_init (LensMagicWindowClass *klass)
 
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, open_file_button);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, export_button);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, original_switch);
     
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, filter_red_button);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, filter_green_button);
@@ -41,6 +42,8 @@ static void lens_magic_window_class_init (LensMagicWindowClass *klass)
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, color_hue_scale);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, color_saturation_scale);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, color_lightness_scale);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, noise_reduction_scale);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, noise_reduction_sharpen_scale);
 
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, exposure_entry);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, brightness_entry);
@@ -53,6 +56,8 @@ static void lens_magic_window_class_init (LensMagicWindowClass *klass)
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, color_hue_entry);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, color_saturation_entry);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, color_lightness_entry);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, noise_reduction_entry);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, noise_reduction_sharpen_entry);
 }
 
 
@@ -60,9 +65,9 @@ static void lens_magic_window_init (LensMagicWindow *self)
 {
     gtk_widget_init_template (GTK_WIDGET (self));
 
-    /*gtk_scale_add_mark (self->exposure_scale, 1, GTK_POS_BOTTOM, NULL);
+    /*gtk_scale_add_mark (self->exposure_scale, 0, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (self->brightness_scale, 0, GTK_POS_BOTTOM, NULL);
-    gtk_scale_add_mark (self->contrast_scale, 1, GTK_POS_BOTTOM, NULL);
+    gtk_scale_add_mark (self->contrast_scale, 0, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (self->highlights_scale, 0, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (self->shadows_scale, 0, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (self->temperature_scale, 0, GTK_POS_BOTTOM, NULL);
@@ -70,7 +75,11 @@ static void lens_magic_window_init (LensMagicWindow *self)
     gtk_scale_add_mark (self->saturation_scale, 0, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (self->color_hue_scale, 0, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (self->color_saturation_scale, 0, GTK_POS_BOTTOM, NULL);
-    gtk_scale_add_mark (self->color_lightness_scale, 1, GTK_POS_BOTTOM, NULL);*/
+    gtk_scale_add_mark (self->color_lightness_scale, 0, GTK_POS_BOTTOM, NULL);*/
+
+    g_signal_connect(self->open_file_button, "clicked", (GCallback) open_file, self);
+    g_signal_connect(self->export_button, "clicked", (GCallback) export_file, self);
+    g_signal_connect(self->original_switch, "state-set", (GCallback) original_switch_state_set, self);
 
     g_signal_connect(self->exposure_scale, "value-changed", (GCallback) exposure_change, self);
     g_signal_connect(self->brightness_scale, "value-changed", (GCallback) brightness_change, self);
@@ -83,9 +92,8 @@ static void lens_magic_window_init (LensMagicWindow *self)
     g_signal_connect(self->color_hue_scale, "value-changed", (GCallback) color_hue_change, self);
     g_signal_connect(self->color_saturation_scale, "value-changed", (GCallback) color_saturation_change, self);
     g_signal_connect(self->color_lightness_scale, "value-changed", (GCallback) color_lightness_change, self);
-
-    g_signal_connect(self->open_file_button, "clicked", (GCallback) open_file, self);
-    g_signal_connect(self->export_button, "clicked", (GCallback) export_file, self);
+    g_signal_connect(self->noise_reduction_scale, "value-changed", (GCallback) noise_reduction_change, self);
+    g_signal_connect(self->noise_reduction_sharpen_scale, "value-changed", (GCallback) noise_reduction_sharpen_change, self);
 
     g_signal_connect(self->filter_red_button, "clicked", (GCallback) filter_red_button_clicked, self);
     g_signal_connect(self->filter_green_button, "clicked", (GCallback) filter_green_button_clicked, self);

@@ -67,7 +67,7 @@ lens_magic_application_about_action (GSimpleAction *action,
 	                       "developer-name", "Aleš Nezbeda",
 	                       "version", "0.1.0",
 	                       "developers", developers,
-	                       "copyright", "©2023 Aleš Nezbeda",
+	                       "copyright", "©2023 Aleš Nezbeda\n\nMichele Morrone - glslSmartDeNoise (BSD 2-Clause license)",
 	                       NULL);
 }
 

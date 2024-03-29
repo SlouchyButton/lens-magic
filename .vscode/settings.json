@@ -11,6 +11,17 @@
         "math.h": "c",
         "glu.h": "c",
         "image-renderer.h": "c",
-        "shaders-source.h": "c"
+        "shaders-source.h": "c",
+        "*.ipp": "c",
+        "charconv": "c",
+        "chrono": "c",
+        "optional": "c",
+        "format": "c",
+        "ratio": "c",
+        "system_error": "c",
+        "functional": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c"
     }
 }

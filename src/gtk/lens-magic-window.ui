@@ -24,6 +24,23 @@
                 <property name="margin-end">40</property>
               </object>
             </child>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">horizontal</property>
+                <child>
+                  <object class="GtkSwitch" id="original_switch">
+                    <property name="active">false</property>
+                    <property name="margin-end">5</property>
+                    <property name="halign">3</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="true">Original</property>
+                  </object>
+                </child>
+              </object>
+            </child>
             <property name="title-widget">
               <object class="GtkLabel">
                 <property name="label" translatable="yes">Lens Magic</property>
@@ -78,10 +95,18 @@
                       <object class="GtkBox">
                         <property name="orientation">horizontal</property>
                         <child>
+                          <object class="GtkSwitch" id="exposure_switch">
+                            <property name="active">false</property>
+                            <property name="margin-bottom">21</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-top">5</property>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkScale" id="exposure_scale">
                             <property name="orientation">0</property>
                             <property name="margin-bottom">18</property>
-                            <property name="width-request">200</property>
+                            <property name="width-request">150</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment">
                                 <property name="lower">-0.9</property>
@@ -111,10 +136,18 @@
                       <object class="GtkBox">
                         <property name="orientation">horizontal</property>
                         <child>
+                          <object class="GtkSwitch" id="brightness_switch">
+                            <property name="active">false</property>
+                            <property name="margin-bottom">21</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-top">5</property>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkScale" id="brightness_scale">
                             <property name="orientation">0</property>
                             <property name="margin-bottom">18</property>
-                            <property name="width-request">200</property>
+                            <property name="width-request">150</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment">
                                 <property name="lower">-0.5</property>
@@ -145,10 +178,18 @@
                       <object class="GtkBox">
                         <property name="orientation">horizontal</property>
                         <child>
+                          <object class="GtkSwitch" id="contrast_switch">
+                            <property name="active">false</property>
+                            <property name="margin-bottom">21</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-top">5</property>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkScale" id="contrast_scale">
                             <property name="orientation">0</property>
                             <property name="margin-bottom">18</property>
-                            <property name="width-request">200</property>
+                            <property name="width-request">150</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment">
                                 <property name="lower">-0.2</property>
@@ -179,10 +220,18 @@
                       <object class="GtkBox">
                         <property name="orientation">horizontal</property>
                         <child>
+                          <object class="GtkSwitch" id="highlights_switch">
+                            <property name="active">false</property>
+                            <property name="margin-bottom">21</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-top">5</property>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkScale" id="highlights_scale">
                             <property name="orientation">0</property>
                             <property name="margin-bottom">18</property>
-                            <property name="width-request">200</property>
+                            <property name="width-request">150</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment">
                                 <property name="lower">-1.0</property>
@@ -213,10 +262,18 @@
                       <object class="GtkBox">
                         <property name="orientation">horizontal</property>
                         <child>
+                          <object class="GtkSwitch" id="shadows_switch">
+                            <property name="active">false</property>
+                            <property name="margin-bottom">21</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-top">5</property>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkScale" id="shadows_scale">
                             <property name="orientation">0</property>
                             <property name="margin-bottom">18</property>
-                            <property name="width-request">200</property>
+                            <property name="width-request">150</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment">
                                 <property name="lower">-1.0</property>
@@ -257,10 +314,18 @@
                       <object class="GtkBox">
                         <property name="orientation">horizontal</property>
                         <child>
+                          <object class="GtkSwitch" id="temperature_switch">
+                            <property name="active">false</property>
+                            <property name="margin-bottom">21</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-top">5</property>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkScale" id="temperature_scale">
                             <property name="orientation">0</property>
                             <property name="margin-bottom">18</property>
-                            <property name="width-request">200</property>
+                            <property name="width-request">150</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment">
                                 <property name="lower">-0.1</property>
@@ -291,10 +356,18 @@
                       <object class="GtkBox">
                         <property name="orientation">horizontal</property>
                         <child>
+                          <object class="GtkSwitch" id="tint_switch">
+                            <property name="active">false</property>
+                            <property name="margin-bottom">21</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-top">5</property>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkScale" id="tint_scale">
                             <property name="orientation">0</property>
                             <property name="margin-bottom">18</property>
-                            <property name="width-request">200</property>
+                            <property name="width-request">150</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment">
                                 <property name="lower">-0.1</property>
@@ -325,10 +398,18 @@
                       <object class="GtkBox">
                         <property name="orientation">horizontal</property>
                         <child>
+                          <object class="GtkSwitch" id="saturation_switch">
+                            <property name="active">false</property>
+                            <property name="margin-bottom">21</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-top">5</property>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkScale" id="saturation_scale">
                             <property name="orientation">0</property>
                             <property name="margin-bottom">18</property>
-                            <property name="width-request">200</property>
+                            <property name="width-request">150</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment">
                                 <property name="lower">-1</property>
@@ -482,6 +563,93 @@
                         </child>
                         <child>
                           <object class="GtkEntry" id="color_lightness_entry">
+                            <property name="text">0.00</property>
+                            <property name="valign">start</property>
+                            <property name="max-width-chars">6</property>
+                            <property name="input-purpose">0</property>
+                            <property name="input-hints">2</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <!-- Image corrections -->
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Correction</property>
+                        <property name="margin-bottom">10</property>
+                        <style>
+                          <class name="title-2"/>
+                        </style>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Noise reduction</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkSwitch" id="noise_reduction_switch">
+                            <property name="active">false</property>
+                            <property name="margin-bottom">21</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-top">5</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkScale" id="noise_reduction_scale">
+                            <property name="orientation">0</property>
+                            <property name="margin-bottom">18</property>
+                            <property name="width-request">150</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">0</property>
+                                <property name="upper">1.5</property>
+                                <property name="value">0</property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="noise_reduction_entry">
+                            <property name="text">0.00</property>
+                            <property name="valign">start</property>
+                            <property name="max-width-chars">6</property>
+                            <property name="input-purpose">0</property>
+                            <property name="input-hints">2</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Noise reduction (sharpening)</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkScale" id="noise_reduction_sharpen_scale">
+                            <property name="orientation">0</property>
+                            <property name="margin-bottom">18</property>
+                            <property name="width-request">150</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment">
+                                <property name="lower">0</property>
+                                <property name="upper">2</property>
+                                <property name="value">0</property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="noise_reduction_sharpen_entry">
                             <property name="text">0.00</property>
                             <property name="valign">start</property>
                             <property name="max-width-chars">6</property>

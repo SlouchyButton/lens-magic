@@ -55,6 +55,8 @@ void prepare_programs(RendererControl* con) {
     GLuint color_saturation_shader = create_shader(&color_saturation_fs, GL_FRAGMENT_SHADER);
     GLuint color_lightness_shader = create_shader(&color_lightness_fs, GL_FRAGMENT_SHADER);
 
+    GLuint denoie_shader = create_shader(&smart_denoise_fs, GL_FRAGMENT_SHADER);
+
     con->programs.plain = create_program(flipped_vertex_shader, plain_shader);
     con->programs.exposure = create_program(vertex_shader, exposure_shader);
     con->programs.brightness = create_program(vertex_shader, brightness_shader);
@@ -64,10 +66,13 @@ void prepare_programs(RendererControl* con) {
     con->programs.saturation = create_program(vertex_shader, saturation_shader);
     con->programs.highlights = create_program(vertex_shader, highlights_shader);
     con->programs.shadows = create_program(vertex_shader, shadows_shader);
+    con->programs.denoise = create_program(vertex_shader, denoie_shader);
 
     con->programs.color_hue = create_program(vertex_shader, color_hue_shader);
     con->programs.color_saturation = create_program(vertex_shader, color_saturation_shader);
     con->programs.color_lightness = create_program(vertex_shader, color_lightness_shader);
+
+
 
     // Delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex_shader);
@@ -84,6 +89,7 @@ void prepare_programs(RendererControl* con) {
     glDeleteShader(color_hue_shader);
     glDeleteShader(color_saturation_shader);
     glDeleteShader(color_lightness_shader);
+    glDeleteShader(denoie_shader);
 }
 
 void prepare_textures(RendererControl* con) {
@@ -287,6 +293,20 @@ void render_hue_fb(GLuint target_fb, GLuint vao, GLuint source_texture, GLuint p
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 }
+void render_denoise_fb(GLuint target_fb, GLuint vao, GLuint source_texture, GLuint program, 
+        gdouble sigma, gdouble kSigma, gdouble threshold) {
+    // Prepare FB 1 and set base texture as input
+    glBindFramebuffer(GL_FRAMEBUFFER, target_fb);
+    glBindTexture(GL_TEXTURE_2D, source_texture);
+    // Prepare program
+    glUseProgram(program);
+    glUniform1f(glGetUniformLocation(program, "sigma"), sigma);
+    glUniform1f(glGetUniformLocation(program, "kSigma"), kSigma);
+    glUniform1f(glGetUniformLocation(program, "threshold"), threshold);
+    // Render
+    glBindVertexArray(vao);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+}
 
 // NOTE: It seems it is not possible to use GL calls and/or use openGL outside GTK callbacks for 
 // GLArea. Not following this results in undefined random behavior such as exporting wrong FB or
@@ -328,7 +348,8 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     }
 
     glViewport(0, 0, con->preview_width, con->preview_height);
-    render_fb(con->preview_fb1, con->VAO, con->tex_base, con->programs.temperature, con->settings.temperature);
+    render_denoise_fb(con->preview_fb2, con->VAO, con->tex_base, con->programs.denoise, 5.0, con->settings.noise_reduction+0.001, con->settings.noise_reduction_sharpen+0.001);
+    render_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.temperature, con->settings.temperature);
     render_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.exposure, con->settings.exposure);
     render_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.brightness, con->settings.brightness);
     render_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.contrast, con->settings.contrast);
@@ -351,7 +372,13 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
 
     // Prepare GTK FB, set FB 2's texture as input and set rendering dimensions based on widget size
     gtk_gl_area_attach_buffers(area);
-    glBindTexture(GL_TEXTURE_2D, con->preview_tex_fb1);
+
+    if (con->show_original) {
+        glBindTexture(GL_TEXTURE_2D, con->tex_base);
+    } else {
+        glBindTexture(GL_TEXTURE_2D, con->preview_tex_fb1);
+    }
+    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glViewport(0, 0, target_width, target_height); // widget size
     // Prepare basic program that flips the view
