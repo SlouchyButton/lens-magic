@@ -266,46 +266,53 @@ void unrealize(GtkWidget *widget) {
     //TODO: delete everything and free it
 }
 
-void render_fb(GLuint target_fb, GLuint vao, GLuint source_texture, GLuint program, gdouble value) {
-    // Prepare FB 1 and set base texture as input
-    glBindFramebuffer(GL_FRAMEBUFFER, target_fb);
-    glBindTexture(GL_TEXTURE_2D, source_texture);
-    // Prepare program
-    glUseProgram(program);
-    glUniform1f(glGetUniformLocation(program, "value"), value);
-    // Render
-    glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-}
+/**
+ * Render framebuffer with one program with arguments in shader_args. Each call increments 
+ * con->processed_fbs_count by one, you have to reset it before calling this function.
+ *
+ * @param con RendererContror with framebuffers, vao and processed_fbs_count
+ * @param preview Use preview framebuffers when rendering
+ * @param program Program to use when rendering framebuffer
+ * @param shader_args Array of ShaderArgument that will be used as program arguments
+ * @param shader_args_count Count of ShaderArguments in shader_args
+ * 
+ * @return  void
+ */
+void render_fb(RendererControl* con, gboolean preview, GLuint program, ShaderArgument shader_args[], 
+        int shader_args_count) {
+    // Set output framebuffer
+    if (preview) {
+        glBindFramebuffer(GL_FRAMEBUFFER, con->processed_fbs_count % 2 ? 
+            con->preview_fb2 : con->preview_fb1);
+    } else {
+        glBindFramebuffer(GL_FRAMEBUFFER, con->processed_fbs_count % 2 ? 
+            con->fb2 : con->fb1);
+    }
 
-// Maybe replace with single function with unlimited values passable by single argument
-// possibly use array with struct containing name and value
-void render_hue_fb(GLuint target_fb, GLuint vao, GLuint source_texture, GLuint program, 
-        gdouble value, GLint hue) {
-    // Prepare FB 1 and set base texture as input
-    glBindFramebuffer(GL_FRAMEBUFFER, target_fb);
-    glBindTexture(GL_TEXTURE_2D, source_texture);
+    // It's first processing, we have to use tex_base as source
+    if (con->processed_fbs_count == 0) {
+        glBindTexture(GL_TEXTURE_2D, con->tex_base);
+    } else {
+        // Set texture from other fb as input
+        if (preview) {
+            glBindTexture(GL_TEXTURE_2D, con->processed_fbs_count % 2 ? 
+                con->preview_tex_fb1 : con->preview_tex_fb2);
+        } else {
+            glBindTexture(GL_TEXTURE_2D, con->processed_fbs_count % 2 ? 
+                con->tex_fb1 : con->tex_fb2);
+        }
+    }
+
     // Prepare program
     glUseProgram(program);
-    glUniform1f(glGetUniformLocation(program, "value"), value);
-    glUniform1i(glGetUniformLocation(program, "hue"), hue);
+    for (int i = 0; i < shader_args_count; i++) {
+        glUniform1f(glGetUniformLocation(program, shader_args[i].name), shader_args[i].value);
+    }
     // Render
-    glBindVertexArray(vao);
+    glBindVertexArray(con->VAO);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-}
-void render_denoise_fb(GLuint target_fb, GLuint vao, GLuint source_texture, GLuint program, 
-        gdouble sigma, gdouble kSigma, gdouble threshold) {
-    // Prepare FB 1 and set base texture as input
-    glBindFramebuffer(GL_FRAMEBUFFER, target_fb);
-    glBindTexture(GL_TEXTURE_2D, source_texture);
-    // Prepare program
-    glUseProgram(program);
-    glUniform1f(glGetUniformLocation(program, "sigma"), sigma);
-    glUniform1f(glGetUniformLocation(program, "kSigma"), kSigma);
-    glUniform1f(glGetUniformLocation(program, "threshold"), threshold);
-    // Render
-    glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+
+    con->processed_fbs_count++; // Increment for next framebuffer rendering
 }
 
 // NOTE: It seems it is not possible to use GL calls and/or use openGL outside GTK callbacks for 
@@ -348,27 +355,47 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     }
 
     glViewport(0, 0, con->preview_width, con->preview_height);
-    render_denoise_fb(con->preview_fb2, con->VAO, con->tex_base, con->programs.denoise, 5.0, con->settings.noise_reduction+0.001, con->settings.noise_reduction_sharpen+0.001);
-    render_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.temperature, con->settings.temperature);
-    render_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.exposure, con->settings.exposure);
-    render_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.brightness, con->settings.brightness);
-    render_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.contrast, con->settings.contrast);
-    render_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.tint, con->settings.tint);
-    render_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.saturation, con->settings.saturation);
-    render_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.highlights, con->settings.highlights);
-    render_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.shadows, con->settings.shadows);
+    //render_denoise_fb(con->preview_fb2, con->VAO, con->tex_base, con->programs.denoise, 5.0, con->settings.noise_reduction+0.001, con->settings.noise_reduction_sharpen+0.001);
+    
+    // TODO: I do not particularly like having to reset it before first render_fb call as it's
+    // not obvious for the function user to do so
+    con->processed_fbs_count = 0; // We have to reset processed FrameBuffers count before processing
+    render_fb(con, true, con->programs.denoise, (ShaderArgument[]){
+        {"sigma", 5},
+        {"kSigma", con->settings.noise_reduction+0.001},
+        {"threshold", con->settings.noise_reduction_sharpen+0.001}
+    }, 3);
 
-    render_hue_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.color_lightness, con->settings.color_presets[0].color_lightness, 0);
-    render_hue_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.color_lightness, con->settings.color_presets[1].color_lightness, 120);
-    render_hue_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.color_lightness, con->settings.color_presets[2].color_lightness, 240);
+    render_fb(con, true, con->programs.exposure, &(ShaderArgument){"value", con->settings.exposure}, 1);
+    render_fb(con, true, con->programs.brightness, &(ShaderArgument){"value", con->settings.brightness}, 1);
+    render_fb(con, true, con->programs.contrast, &(ShaderArgument){"value", con->settings.contrast}, 1);
+    render_fb(con, true, con->programs.highlights, &(ShaderArgument){"value", con->settings.highlights}, 1);
+    render_fb(con, true, con->programs.shadows, &(ShaderArgument){"value", con->settings.shadows}, 1);
 
-    render_hue_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.color_saturation, con->settings.color_presets[0].color_saturation, 0);
-    render_hue_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.color_saturation, con->settings.color_presets[1].color_saturation, 120);
-    render_hue_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.color_saturation, con->settings.color_presets[2].color_saturation, 240);
+    render_fb(con, true, con->programs.color_lightness, (ShaderArgument[]){
+        {"value", con->settings.color_presets[0].color_lightness}, {"hue", 0}}, 2);
+    render_fb(con, true, con->programs.color_lightness, (ShaderArgument[]){
+        {"value", con->settings.color_presets[1].color_lightness}, {"hue", 120}}, 2);
+    render_fb(con, true, con->programs.color_lightness, (ShaderArgument[]){
+        {"value", con->settings.color_presets[2].color_lightness},{"hue", 240}}, 2);
 
-    render_hue_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.color_hue, con->settings.color_presets[0].color_hue, 0);
-    render_hue_fb(con->preview_fb2, con->VAO, con->preview_tex_fb1, con->programs.color_hue, con->settings.color_presets[1].color_hue, 120);
-    render_hue_fb(con->preview_fb1, con->VAO, con->preview_tex_fb2, con->programs.color_hue, con->settings.color_presets[2].color_hue, 240);
+    render_fb(con, true, con->programs.color_saturation, (ShaderArgument[]){
+        {"value", con->settings.color_presets[0].color_saturation}, {"hue", 0}}, 2);
+    render_fb(con, true, con->programs.color_saturation, (ShaderArgument[]){
+        {"value", con->settings.color_presets[1].color_saturation}, {"hue", 120}}, 2);
+    render_fb(con, true, con->programs.color_saturation, (ShaderArgument[]){
+        {"value", con->settings.color_presets[2].color_saturation},{"hue", 240}}, 2);
+
+    render_fb(con, true, con->programs.color_hue, (ShaderArgument[]){
+        {"value", con->settings.color_presets[0].color_hue}, {"hue", 0}}, 2);
+    render_fb(con, true, con->programs.color_lightness, (ShaderArgument[]){
+        {"value", con->settings.color_presets[1].color_hue}, {"hue", 120}}, 2);
+    render_fb(con, true, con->programs.color_lightness, (ShaderArgument[]){
+        {"value", con->settings.color_presets[2].color_hue},{"hue", 240}}, 2);
+
+    render_fb(con, true, con->programs.temperature, &(ShaderArgument){"value", con->settings.temperature}, 1);
+    render_fb(con, true, con->programs.tint, &(ShaderArgument){"value", con->settings.tint}, 1);
+    render_fb(con, true, con->programs.saturation, &(ShaderArgument){"value", con->settings.saturation}, 1);
 
     // Prepare GTK FB, set FB 2's texture as input and set rendering dimensions based on widget size
     gtk_gl_area_attach_buffers(area);
@@ -399,14 +426,44 @@ gboolean export(RendererControl* con, char* path) {
 
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glViewport(0, 0, width, height);
-    render_fb(con->fb1, con->VAO, con->tex_base, con->programs.temperature, con->settings.temperature);
-    render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.exposure, con->settings.exposure);
-    render_fb(con->fb1, con->VAO, con->tex_fb2, con->programs.brightness, con->settings.brightness);
-    render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.contrast, con->settings.contrast);
-    render_fb(con->fb1, con->VAO, con->tex_fb2, con->programs.tint, con->settings.tint);
-    render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.saturation, con->settings.saturation);
-    render_fb(con->fb1, con->VAO, con->tex_fb2, con->programs.highlights, con->settings.highlights);
-    render_fb(con->fb2, con->VAO, con->tex_fb1, con->programs.shadows, con->settings.shadows);
+
+    con->processed_fbs_count = 0; // We have to reset processed FrameBuffers count before processing
+    render_fb(con, false, con->programs.denoise, (ShaderArgument[]){
+        {"sigma", 5},
+        {"kSigma", con->settings.noise_reduction+0.001},
+        {"threshold", con->settings.noise_reduction_sharpen+0.001}
+    }, 3);
+
+    render_fb(con, false, con->programs.exposure, &(ShaderArgument){"value", con->settings.exposure}, 1);
+    render_fb(con, false, con->programs.brightness, &(ShaderArgument){"value", con->settings.brightness}, 1);
+    render_fb(con, false, con->programs.contrast, &(ShaderArgument){"value", con->settings.contrast}, 1);
+    render_fb(con, false, con->programs.highlights, &(ShaderArgument){"value", con->settings.highlights}, 1);
+    render_fb(con, false, con->programs.shadows, &(ShaderArgument){"value", con->settings.shadows}, 1);
+
+    render_fb(con, false, con->programs.color_lightness, (ShaderArgument[]){
+        {"value", con->settings.color_presets[0].color_lightness}, {"hue", 0}}, 2);
+    render_fb(con, false, con->programs.color_lightness, (ShaderArgument[]){
+        {"value", con->settings.color_presets[1].color_lightness}, {"hue", 120}}, 2);
+    render_fb(con, false, con->programs.color_lightness, (ShaderArgument[]){
+        {"value", con->settings.color_presets[2].color_lightness},{"hue", 240}}, 2);
+
+    render_fb(con, false, con->programs.color_saturation, (ShaderArgument[]){
+        {"value", con->settings.color_presets[0].color_saturation}, {"hue", 0}}, 2);
+    render_fb(con, false, con->programs.color_saturation, (ShaderArgument[]){
+        {"value", con->settings.color_presets[1].color_saturation}, {"hue", 120}}, 2);
+    render_fb(con, false, con->programs.color_saturation, (ShaderArgument[]){
+        {"value", con->settings.color_presets[2].color_saturation},{"hue", 240}}, 2);
+
+    render_fb(con, false, con->programs.color_hue, (ShaderArgument[]){
+        {"value", con->settings.color_presets[0].color_hue}, {"hue", 0}}, 2);
+    render_fb(con, false, con->programs.color_lightness, (ShaderArgument[]){
+        {"value", con->settings.color_presets[1].color_hue}, {"hue", 120}}, 2);
+    render_fb(con, false, con->programs.color_lightness, (ShaderArgument[]){
+        {"value", con->settings.color_presets[2].color_hue},{"hue", 240}}, 2);
+
+    render_fb(con, false, con->programs.temperature, &(ShaderArgument){"value", con->settings.temperature}, 1);
+    render_fb(con, false, con->programs.tint, &(ShaderArgument){"value", con->settings.tint}, 1);
+    render_fb(con, false, con->programs.saturation, &(ShaderArgument){"value", con->settings.saturation}, 1);
     
     uint8_t* fb_data = calloc(width*height, sizeof(uint8_t)*3);
 

@@ -4,6 +4,11 @@
 #include <math.h>
 #include <epoxy/gl.h>
 
+typedef struct ShaderArgument_ {
+    gchar*      name;
+    gdouble     value;
+} ShaderArgument;
+
 typedef struct ColorPreset_ {
     gdouble      color_hue;
     gdouble      color_saturation;
@@ -68,6 +73,8 @@ typedef struct RendererControl_ {
     GLuint          VAO;
     GLuint          VBO;
     GLuint          EBO;
+
+    int             processed_fbs_count;
 
     // Control
     gboolean        show_original;
