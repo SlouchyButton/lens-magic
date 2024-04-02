@@ -36,6 +36,10 @@ lens_magic_application_activate (GApplication *app)
 		window = g_object_new (LENS_MAGIC_TYPE_WINDOW,
 		                       "application", app,
 		                       NULL);
+	
+    #ifndef NDEBUG
+		gtk_widget_add_css_class((GtkWidget*) window, "devel");
+    #endif
 
 	gtk_window_present (window);
 }

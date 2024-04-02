@@ -81,19 +81,19 @@ static void lens_magic_window_init (LensMagicWindow *self)
     g_signal_connect(self->export_button, "clicked", (GCallback) export_file, self);
     g_signal_connect(self->original_switch, "state-set", (GCallback) original_switch_state_set, self);
 
-    g_signal_connect(self->exposure_scale, "value-changed", (GCallback) exposure_change, self);
-    g_signal_connect(self->brightness_scale, "value-changed", (GCallback) brightness_change, self);
-    g_signal_connect(self->contrast_scale, "value-changed", (GCallback) contrast_change, self);
-    g_signal_connect(self->highlights_scale, "value-changed", (GCallback) highlights_change, self);
-    g_signal_connect(self->shadows_scale, "value-changed", (GCallback) shadows_change, self);
-    g_signal_connect(self->temperature_scale, "value-changed", (GCallback) temperature_change, self);
-    g_signal_connect(self->tint_scale, "value-changed", (GCallback) tint_change, self);
-    g_signal_connect(self->saturation_scale, "value-changed", (GCallback) saturation_change, self);
-    g_signal_connect(self->color_hue_scale, "value-changed", (GCallback) color_hue_change, self);
-    g_signal_connect(self->color_saturation_scale, "value-changed", (GCallback) color_saturation_change, self);
-    g_signal_connect(self->color_lightness_scale, "value-changed", (GCallback) color_lightness_change, self);
-    g_signal_connect(self->noise_reduction_scale, "value-changed", (GCallback) noise_reduction_change, self);
-    g_signal_connect(self->noise_reduction_sharpen_scale, "value-changed", (GCallback) noise_reduction_sharpen_change, self);
+    g_signal_connect(self->exposure_scale, "value-changed", (GCallback) exposure_scale_change, self);
+    g_signal_connect(self->brightness_scale, "value-changed", (GCallback) brightness_scale_change, self);
+    g_signal_connect(self->contrast_scale, "value-changed", (GCallback) contrast_scale_change, self);
+    g_signal_connect(self->highlights_scale, "value-changed", (GCallback) highlights_scale_change, self);
+    g_signal_connect(self->shadows_scale, "value-changed", (GCallback) shadows_scale_change, self);
+    g_signal_connect(self->temperature_scale, "value-changed", (GCallback) temperature_scale_change, self);
+    g_signal_connect(self->tint_scale, "value-changed", (GCallback) tint_scale_change, self);
+    g_signal_connect(self->saturation_scale, "value-changed", (GCallback) saturation_scale_change, self);
+    g_signal_connect(self->color_hue_scale, "value-changed", (GCallback) color_hue_scale_change, self);
+    g_signal_connect(self->color_saturation_scale, "value-changed", (GCallback) color_saturation_scale_change, self);
+    g_signal_connect(self->color_lightness_scale, "value-changed", (GCallback) color_lightness_scale_change, self);
+    g_signal_connect(self->noise_reduction_scale, "value-changed", (GCallback) noise_reduction_scale_change, self);
+    g_signal_connect(self->noise_reduction_sharpen_scale, "value-changed", (GCallback) noise_reduction_sharpen_scale_change, self);
 
     g_signal_connect(self->filter_red_button, "clicked", (GCallback) filter_red_button_clicked, self);
     g_signal_connect(self->filter_green_button, "clicked", (GCallback) filter_green_button_clicked, self);

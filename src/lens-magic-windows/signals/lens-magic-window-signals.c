@@ -24,7 +24,7 @@ gboolean original_switch_state_set(GtkSwitch* sw, gboolean state, LensMagicWindo
 // Light callbacks //
 //-----------------//
 
-void exposure_change(GtkRange* range, LensMagicWindow *self) {
+void exposure_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->exposure_entry, val);
     self->con.settings.exposure = val;
@@ -32,7 +32,7 @@ void exposure_change(GtkRange* range, LensMagicWindow *self) {
     redraw_image ((GtkGLArea*)self->gl_area);
 }
 
-void brightness_change(GtkRange* range, LensMagicWindow *self) {
+void brightness_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->brightness_entry, val);
     self->con.settings.brightness = val;
@@ -40,7 +40,7 @@ void brightness_change(GtkRange* range, LensMagicWindow *self) {
     redraw_image ((GtkGLArea*)self->gl_area);
 }
 
-void contrast_change(GtkRange* range, LensMagicWindow *self) {
+void contrast_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->contrast_entry, val);
     self->con.settings.contrast = val;
@@ -48,7 +48,7 @@ void contrast_change(GtkRange* range, LensMagicWindow *self) {
     redraw_image ((GtkGLArea*)self->gl_area);
 }
 
-void highlights_change(GtkRange* range, LensMagicWindow *self) {
+void highlights_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->highlights_entry, val);
     self->con.settings.highlights = val;
@@ -56,7 +56,7 @@ void highlights_change(GtkRange* range, LensMagicWindow *self) {
     redraw_image ((GtkGLArea*)self->gl_area);
 }
 
-void shadows_change(GtkRange* range, LensMagicWindow *self) {
+void shadows_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->shadows_entry, val);
     self->con.settings.shadows = val;
@@ -69,7 +69,7 @@ void shadows_change(GtkRange* range, LensMagicWindow *self) {
 // Color callbacks //
 //-----------------//
 
-void temperature_change(GtkRange* range, LensMagicWindow *self) {
+void temperature_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->temperature_entry, val);
     self->con.settings.temperature = val;
@@ -77,7 +77,7 @@ void temperature_change(GtkRange* range, LensMagicWindow *self) {
     redraw_image ((GtkGLArea*)self->gl_area);
 }
 
-void tint_change(GtkRange* range, LensMagicWindow *self) {
+void tint_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->tint_entry, val);
     self->con.settings.tint = val;
@@ -85,7 +85,7 @@ void tint_change(GtkRange* range, LensMagicWindow *self) {
     redraw_image ((GtkGLArea*)self->gl_area);
 }
 
-void saturation_change(GtkRange* range, LensMagicWindow *self) {
+void saturation_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->saturation_entry, val);
     self->con.settings.saturation = val;
@@ -129,7 +129,7 @@ void filter_blue_button_clicked(GtkToggleButton* btn, LensMagicWindow* self) {
     refresh_ranges(self);
 }
 
-void color_hue_change(GtkRange* range, LensMagicWindow *self) {
+void color_hue_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->color_hue_entry, val);
 
@@ -138,7 +138,7 @@ void color_hue_change(GtkRange* range, LensMagicWindow *self) {
     redraw_image ((GtkGLArea*)self->gl_area);
 }
 
-void color_saturation_change(GtkRange* range, LensMagicWindow *self) {
+void color_saturation_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->color_saturation_entry, val);
 
@@ -147,7 +147,7 @@ void color_saturation_change(GtkRange* range, LensMagicWindow *self) {
     redraw_image ((GtkGLArea*)self->gl_area);
 }
 
-void color_lightness_change(GtkRange* range, LensMagicWindow *self) {
+void color_lightness_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->color_lightness_entry, val);
     
@@ -156,7 +156,7 @@ void color_lightness_change(GtkRange* range, LensMagicWindow *self) {
     redraw_image ((GtkGLArea*)self->gl_area);
 }
 
-void noise_reduction_change(GtkRange* range, LensMagicWindow *self) {
+void noise_reduction_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->noise_reduction_entry, val);
     self->con.settings.noise_reduction = val;
@@ -164,7 +164,7 @@ void noise_reduction_change(GtkRange* range, LensMagicWindow *self) {
     redraw_image ((GtkGLArea*)self->gl_area);
 }
 
-void noise_reduction_sharpen_change(GtkRange* range, LensMagicWindow *self) {
+void noise_reduction_sharpen_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->noise_reduction_sharpen_entry, val);
     self->con.settings.noise_reduction_sharpen = val;
