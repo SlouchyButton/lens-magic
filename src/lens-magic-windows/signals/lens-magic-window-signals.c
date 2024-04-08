@@ -20,14 +20,88 @@ gboolean original_switch_state_set(GtkSwitch* sw, gboolean state, LensMagicWindo
     return false;
 }
 
+gboolean adj_switch_state_set(GtkSwitch* sw, gboolean state, struct adjustment_elements* data) {
+    if (state) {
+        gdouble val = gtk_range_get_value ((GtkRange*) data->scale);
+        *data->settings_value = val;
+    } else {
+        *data->settings_value = 0;
+    }
+
+    redraw_image ((GtkGLArea*)data->self->gl_area);
+    return false;
+}
+
 //-----------------//
 // Light callbacks //
 //-----------------//
+
+gboolean exposure_switch_state_set(GtkSwitch* sw, gboolean state, LensMagicWindow *self) {
+    if (state) {
+        gdouble val = gtk_range_get_value ((GtkRange*) self->exposure_scale);
+        self->con.settings.exposure = val;
+    } else {
+        self->con.settings.exposure = 0;
+    }
+
+    redraw_image ((GtkGLArea*)self->gl_area);
+    return false;
+}
+
+gboolean brightness_switch_state_set(GtkSwitch* sw, gboolean state, LensMagicWindow *self) {
+    if (state) {
+        gdouble val = gtk_range_get_value ((GtkRange*) self->brightness_scale);
+        self->con.settings.brightness = val;
+    } else {
+        self->con.settings.brightness = 0;
+    }
+
+    redraw_image ((GtkGLArea*)self->gl_area);
+    return false;
+}
+
+gboolean contrast_switch_state_set(GtkSwitch* sw, gboolean state, LensMagicWindow *self) {
+    if (state) {
+        gdouble val = gtk_range_get_value ((GtkRange*) self->contrast_scale);
+        self->con.settings.contrast = val;
+    } else {
+        self->con.settings.contrast = 0;
+    }
+
+    redraw_image ((GtkGLArea*)self->gl_area);
+    return false;
+}
+
+gboolean highlights_switch_state_set(GtkSwitch* sw, gboolean state, LensMagicWindow *self) {
+    if (state) {
+        gdouble val = gtk_range_get_value ((GtkRange*) self->highlights_scale);
+        self->con.settings.highlights = val;
+    } else {
+        self->con.settings.highlights = 0;
+    }
+
+    redraw_image ((GtkGLArea*)self->gl_area);
+    return false;
+}
+
+gboolean shadows_switch_state_set(GtkSwitch* sw, gboolean state, LensMagicWindow *self) {
+    if (state) {
+        gdouble val = gtk_range_get_value ((GtkRange*) self->shadows_scale);
+        self->con.settings.shadows = val;
+    } else {
+        self->con.settings.shadows = 0;
+    }
+
+    redraw_image ((GtkGLArea*)self->gl_area);
+    return false;
+}
 
 void exposure_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->exposure_entry, val);
     self->con.settings.exposure = val;
+
+    gtk_switch_set_active(self->exposure_switch, true);
 
     redraw_image ((GtkGLArea*)self->gl_area);
 }

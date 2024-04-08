@@ -17,6 +17,7 @@ struct _LensMagicWindow {
     AdwApplicationWindow parent_instance;
 
     RendererControl con;
+    Adjustments     elements;
 
     /* Template widgets */
     GtkHeaderBar*       header_bar;
@@ -32,6 +33,16 @@ struct _LensMagicWindow {
     GtkToggleButton*    filter_green_button;
     GtkToggleButton*    filter_blue_button;
     int                 selected_filter;
+
+    GtkSwitch*           exposure_switch;
+    GtkSwitch*           brightness_switch;
+    GtkSwitch*           contrast_switch;
+    GtkSwitch*           highlights_switch;
+    GtkSwitch*           shadows_switch;
+    GtkSwitch*           temperature_switch;
+    GtkSwitch*           tint_switch;
+    GtkSwitch*           saturation_switch;
+    GtkSwitch*           noise_reduction_switch;
 
     GtkScale*           exposure_scale;
     GtkScale*           brightness_scale;

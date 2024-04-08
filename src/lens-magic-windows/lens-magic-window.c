@@ -31,6 +31,16 @@ static void lens_magic_window_class_init (LensMagicWindowClass *klass)
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, filter_green_button);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, filter_blue_button);
 
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, exposure_switch);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, brightness_switch);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, contrast_switch);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, highlights_switch);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, shadows_switch);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, temperature_switch);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, tint_switch);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, saturation_switch);
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, noise_reduction_switch);
+
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, exposure_scale);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, brightness_scale);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, contrast_scale);
@@ -65,6 +75,11 @@ static void lens_magic_window_init (LensMagicWindow *self)
 {
     gtk_widget_init_template (GTK_WIDGET (self));
 
+    self->elements.brightness = (struct adjustment_elements) { 
+        self, self->brightness_switch, self->brightness_scale, 
+        self->brightness_entry, &self->con.settings.brightness
+    };
+
     /*gtk_scale_add_mark (self->exposure_scale, 0, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (self->brightness_scale, 0, GTK_POS_BOTTOM, NULL);
     gtk_scale_add_mark (self->contrast_scale, 0, GTK_POS_BOTTOM, NULL);
@@ -80,6 +95,13 @@ static void lens_magic_window_init (LensMagicWindow *self)
     g_signal_connect(self->open_file_button, "clicked", (GCallback) open_file, self);
     g_signal_connect(self->export_button, "clicked", (GCallback) export_file, self);
     g_signal_connect(self->original_switch, "state-set", (GCallback) original_switch_state_set, self);
+
+    //g_signal_connect_data(self->exposure_switch, "state-set", (GCallback) adj_switch_state_set, &(struct adj_switch_state_set){self, self->exposure_scale, &self->con.settings.exposure}, NULL, 0);
+    //g_signal_connect(self->exposure_switch, "state-set", (GCallback) adj_switch_state_set, (struct adj_switch_state_set){self, self->exposure_scale, self.con.exposure});
+    g_signal_connect(self->brightness_switch, "state-set", (GCallback) brightness_switch_state_set, self);
+    g_signal_connect(self->contrast_switch, "state-set", (GCallback) contrast_switch_state_set, self);
+    g_signal_connect(self->highlights_switch, "state-set", (GCallback) highlights_switch_state_set, self);
+    g_signal_connect(self->shadows_switch, "state-set", (GCallback) shadows_switch_state_set, self);
 
     g_signal_connect(self->exposure_scale, "value-changed", (GCallback) exposure_scale_change, self);
     g_signal_connect(self->brightness_scale, "value-changed", (GCallback) brightness_scale_change, self);

@@ -192,7 +192,6 @@ void refresh_textures(RendererControl* con) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-/* We need to set up our state when we realize the GtkGLArea widget */
 void realize(GtkWidget *widget, RendererControl* con) {
     #ifndef NDEBUG
         glEnable(GL_DEBUG_OUTPUT);
@@ -358,7 +357,7 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     //render_denoise_fb(con->preview_fb2, con->VAO, con->tex_base, con->programs.denoise, 5.0, con->settings.noise_reduction+0.001, con->settings.noise_reduction_sharpen+0.001);
     
     // TODO: I do not particularly like having to reset it before first render_fb call as it's
-    // not obvious for the function user to do so
+    // not obvious for the function caller to do so
     con->processed_fbs_count = 0; // We have to reset processed FrameBuffers count before processing
     render_fb(con, true, con->programs.denoise, (ShaderArgument[]){
         {"sigma", 5},
