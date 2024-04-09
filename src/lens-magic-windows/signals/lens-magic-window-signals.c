@@ -20,7 +20,7 @@ gboolean original_switch_state_set(GtkSwitch* sw, gboolean state, LensMagicWindo
     return false;
 }
 
-gboolean adj_switch_state_set(GtkSwitch* sw, gboolean state, struct adjustment_elements* data) {
+gboolean adj_switch_state_set(GtkSwitch* sw, gboolean state, AdjustmentElements* data) {
     if (state) {
         gdouble val = gtk_range_get_value ((GtkRange*) data->scale);
         *data->settings_value = val;
@@ -32,11 +32,21 @@ gboolean adj_switch_state_set(GtkSwitch* sw, gboolean state, struct adjustment_e
     return false;
 }
 
+void adj_scale_change(GtkRange* range, AdjustmentElements* data) {
+    gdouble val = gtk_range_get_value (range);
+    set_entry_value(data->entry, val);
+    *data->settings_value = val;
+
+    gtk_switch_set_active(data->sw, true);
+
+    redraw_image ((GtkGLArea*)data->self->gl_area);
+}
+
 //-----------------//
 // Light callbacks //
 //-----------------//
 
-gboolean exposure_switch_state_set(GtkSwitch* sw, gboolean state, LensMagicWindow *self) {
+/*gboolean exposure_switch_state_set(GtkSwitch* sw, gboolean state, LensMagicWindow *self) {
     if (state) {
         gdouble val = gtk_range_get_value ((GtkRange*) self->exposure_scale);
         self->con.settings.exposure = val;
@@ -165,7 +175,7 @@ void saturation_scale_change(GtkRange* range, LensMagicWindow *self) {
     self->con.settings.saturation = val;
 
     redraw_image ((GtkGLArea*)self->gl_area);
-}
+}*/
 
 
 //------------------------//
@@ -230,7 +240,7 @@ void color_lightness_scale_change(GtkRange* range, LensMagicWindow *self) {
     redraw_image ((GtkGLArea*)self->gl_area);
 }
 
-void noise_reduction_scale_change(GtkRange* range, LensMagicWindow *self) {
+/*void noise_reduction_scale_change(GtkRange* range, LensMagicWindow *self) {
     gdouble val = gtk_range_get_value (range);
     set_entry_value(self->noise_reduction_entry, val);
     self->con.settings.noise_reduction = val;
@@ -244,4 +254,4 @@ void noise_reduction_sharpen_scale_change(GtkRange* range, LensMagicWindow *self
     self->con.settings.noise_reduction_sharpen = val;
 
     redraw_image ((GtkGLArea*)self->gl_area);
-}
+}*/

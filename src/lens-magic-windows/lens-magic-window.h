@@ -13,6 +13,27 @@ G_DECLARE_FINAL_TYPE (LensMagicWindow, lens_magic_window, LENS_MAGIC, WINDOW, Ad
 
 G_END_DECLS
 
+typedef struct AdjustmentElements_ {
+    LensMagicWindow*    self;
+    GtkSwitch*          sw;
+    GtkScale*           scale;
+    GtkEntry*           entry;
+    gdouble*            settings_value;
+} AdjustmentElements;
+
+typedef struct Adjustments_ {
+    AdjustmentElements exposure;
+    AdjustmentElements brightness;
+    AdjustmentElements contrast;
+    AdjustmentElements highlights;
+    AdjustmentElements shadows;
+    AdjustmentElements temperature;
+    AdjustmentElements tint;
+    AdjustmentElements saturation;
+    AdjustmentElements noise_reduction;
+    AdjustmentElements noise_reduction_sharpen;
+} Adjustments;
+
 struct _LensMagicWindow {
     AdwApplicationWindow parent_instance;
 

@@ -75,9 +75,48 @@ static void lens_magic_window_init (LensMagicWindow *self)
 {
     gtk_widget_init_template (GTK_WIDGET (self));
 
-    self->elements.brightness = (struct adjustment_elements) { 
+    // TODO: Don't particularly like having to do this, initializing widgets directly into it
+    // would be better, but haven't found a way of doing it with 
+    // gtk_widget_class_bind_template_child 
+    self->elements.exposure = (AdjustmentElements) { 
+        self, self->exposure_switch, self->exposure_scale, 
+        self->exposure_entry, &self->con.settings.exposure
+    };
+    self->elements.brightness = (AdjustmentElements) { 
         self, self->brightness_switch, self->brightness_scale, 
         self->brightness_entry, &self->con.settings.brightness
+    };
+    self->elements.contrast = (AdjustmentElements) { 
+        self, self->contrast_switch, self->contrast_scale, 
+        self->contrast_entry, &self->con.settings.contrast
+    };
+    self->elements.highlights = (AdjustmentElements) { 
+        self, self->highlights_switch, self->highlights_scale, 
+        self->highlights_entry, &self->con.settings.highlights
+    };
+    self->elements.shadows = (AdjustmentElements) { 
+        self, self->shadows_switch, self->shadows_scale, 
+        self->shadows_entry, &self->con.settings.shadows
+    };
+    self->elements.temperature = (AdjustmentElements) { 
+        self, self->temperature_switch, self->temperature_scale, 
+        self->temperature_entry, &self->con.settings.temperature
+    };
+    self->elements.tint = (AdjustmentElements) { 
+        self, self->tint_switch, self->tint_scale, 
+        self->tint_entry, &self->con.settings.tint
+    };
+    self->elements.saturation = (AdjustmentElements) { 
+        self, self->saturation_switch, self->saturation_scale, 
+        self->saturation_entry, &self->con.settings.saturation
+    };
+    self->elements.noise_reduction = (AdjustmentElements) { 
+        self, self->noise_reduction_switch, self->noise_reduction_scale, 
+        self->noise_reduction_entry, &self->con.settings.noise_reduction
+    };
+    self->elements.noise_reduction_sharpen = (AdjustmentElements) { 
+        self, self->noise_reduction_switch, self->noise_reduction_sharpen_scale, 
+        self->noise_reduction_sharpen_entry, &self->con.settings.noise_reduction_sharpen
     };
 
     /*gtk_scale_add_mark (self->exposure_scale, 0, GTK_POS_BOTTOM, NULL);
@@ -96,26 +135,25 @@ static void lens_magic_window_init (LensMagicWindow *self)
     g_signal_connect(self->export_button, "clicked", (GCallback) export_file, self);
     g_signal_connect(self->original_switch, "state-set", (GCallback) original_switch_state_set, self);
 
-    //g_signal_connect_data(self->exposure_switch, "state-set", (GCallback) adj_switch_state_set, &(struct adj_switch_state_set){self, self->exposure_scale, &self->con.settings.exposure}, NULL, 0);
-    //g_signal_connect(self->exposure_switch, "state-set", (GCallback) adj_switch_state_set, (struct adj_switch_state_set){self, self->exposure_scale, self.con.exposure});
-    g_signal_connect(self->brightness_switch, "state-set", (GCallback) brightness_switch_state_set, self);
-    g_signal_connect(self->contrast_switch, "state-set", (GCallback) contrast_switch_state_set, self);
-    g_signal_connect(self->highlights_switch, "state-set", (GCallback) highlights_switch_state_set, self);
-    g_signal_connect(self->shadows_switch, "state-set", (GCallback) shadows_switch_state_set, self);
+    g_signal_connect(self->exposure_switch, "state-set", (GCallback) adj_switch_state_set, &self->elements.exposure);
+    g_signal_connect(self->brightness_switch, "state-set", (GCallback) adj_switch_state_set, &self->elements.brightness);
+    g_signal_connect(self->contrast_switch, "state-set", (GCallback) adj_switch_state_set, &self->elements.contrast);
+    g_signal_connect(self->highlights_switch, "state-set", (GCallback) adj_switch_state_set, &self->elements.highlights);
+    g_signal_connect(self->shadows_switch, "state-set", (GCallback) adj_switch_state_set, &self->elements.shadows);
 
-    g_signal_connect(self->exposure_scale, "value-changed", (GCallback) exposure_scale_change, self);
-    g_signal_connect(self->brightness_scale, "value-changed", (GCallback) brightness_scale_change, self);
-    g_signal_connect(self->contrast_scale, "value-changed", (GCallback) contrast_scale_change, self);
-    g_signal_connect(self->highlights_scale, "value-changed", (GCallback) highlights_scale_change, self);
-    g_signal_connect(self->shadows_scale, "value-changed", (GCallback) shadows_scale_change, self);
-    g_signal_connect(self->temperature_scale, "value-changed", (GCallback) temperature_scale_change, self);
-    g_signal_connect(self->tint_scale, "value-changed", (GCallback) tint_scale_change, self);
-    g_signal_connect(self->saturation_scale, "value-changed", (GCallback) saturation_scale_change, self);
+    g_signal_connect(self->exposure_scale, "value-changed", (GCallback) adj_scale_change, &self->elements.exposure);
+    g_signal_connect(self->brightness_scale, "value-changed", (GCallback) adj_scale_change, &self->elements.brightness);
+    g_signal_connect(self->contrast_scale, "value-changed", (GCallback) adj_scale_change, &self->elements.contrast);
+    g_signal_connect(self->highlights_scale, "value-changed", (GCallback) adj_scale_change, &self->elements.highlights);
+    g_signal_connect(self->shadows_scale, "value-changed", (GCallback) adj_scale_change, &self->elements.shadows);
+    g_signal_connect(self->temperature_scale, "value-changed", (GCallback) adj_scale_change, &self->elements.temperature);
+    g_signal_connect(self->tint_scale, "value-changed", (GCallback) adj_scale_change, &self->elements.tint);
+    g_signal_connect(self->saturation_scale, "value-changed", (GCallback) adj_scale_change, &self->elements.saturation);
     g_signal_connect(self->color_hue_scale, "value-changed", (GCallback) color_hue_scale_change, self);
     g_signal_connect(self->color_saturation_scale, "value-changed", (GCallback) color_saturation_scale_change, self);
     g_signal_connect(self->color_lightness_scale, "value-changed", (GCallback) color_lightness_scale_change, self);
-    g_signal_connect(self->noise_reduction_scale, "value-changed", (GCallback) noise_reduction_scale_change, self);
-    g_signal_connect(self->noise_reduction_sharpen_scale, "value-changed", (GCallback) noise_reduction_sharpen_scale_change, self);
+    g_signal_connect(self->noise_reduction_scale, "value-changed", (GCallback) adj_scale_change, &self->elements.noise_reduction);
+    g_signal_connect(self->noise_reduction_sharpen_scale, "value-changed", (GCallback) adj_scale_change, &self->elements.noise_reduction_sharpen);
 
     g_signal_connect(self->filter_red_button, "clicked", (GCallback) filter_red_button_clicked, self);
     g_signal_connect(self->filter_green_button, "clicked", (GCallback) filter_green_button_clicked, self);
