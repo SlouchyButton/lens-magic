@@ -5,7 +5,7 @@
 #include <epoxy/gl.h>
 
 typedef struct ShaderArgument_ {
-    gchar*      name;
+    const gchar*      name;
     gdouble     value;
 } ShaderArgument;
 

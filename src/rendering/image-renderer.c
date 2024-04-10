@@ -5,6 +5,7 @@
 
 #include "shaders/shaders-source.h"
 
+// Copied from OpenGL documentation - handles logging OpenGL messages into stderr
 void GLAPIENTRY MessageCallback( GLenum source, GLenum type, GLuint id, GLenum severity, 
         GLsizei length, const GLchar* message, const void* userParam) {
     
@@ -71,8 +72,6 @@ void prepare_programs(RendererControl* con) {
     con->programs.color_hue = create_program(vertex_shader, color_hue_shader);
     con->programs.color_saturation = create_program(vertex_shader, color_saturation_shader);
     con->programs.color_lightness = create_program(vertex_shader, color_lightness_shader);
-
-
 
     // Delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex_shader);
@@ -214,7 +213,7 @@ void realize(GtkWidget *widget, RendererControl* con) {
 
     // Indices for a quad
     unsigned int indices[] = {
-        0, 1, 2,
+        0, 1, 2, // Use only one triangle that is streched over the screen
         /*0, 1, 3, // First triangle
         1, 2, 3  // Second triangle*/
     };
@@ -254,7 +253,6 @@ void realize(GtkWidget *widget, RendererControl* con) {
     printf("Initialized OpenGL\n");
 }
 
-/* We should tear down the state when unrealizing */
 void unrealize(GtkWidget *widget) {
     gtk_gl_area_make_current (GTK_GL_AREA (widget));
 
@@ -269,7 +267,7 @@ void unrealize(GtkWidget *widget) {
  * Render framebuffer with one program with arguments in shader_args. Each call increments 
  * con->processed_fbs_count by one, you have to reset it before calling this function.
  *
- * @param con RendererContror with framebuffers, vao and processed_fbs_count
+ * @param con RendererControl with framebuffers, vao and processed_fbs_count
  * @param preview Use preview framebuffers when rendering
  * @param program Program to use when rendering framebuffer
  * @param shader_args Array of ShaderArgument that will be used as program arguments
@@ -402,7 +400,8 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     if (con->show_original) {
         glBindTexture(GL_TEXTURE_2D, con->tex_base);
     } else {
-        glBindTexture(GL_TEXTURE_2D, con->preview_tex_fb1);
+        glBindTexture(GL_TEXTURE_2D, con->processed_fbs_count % 2 ? 
+                con->preview_tex_fb1 : con->preview_tex_fb2);
     }
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -419,6 +418,16 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
     return true;
 }
 
+/**
+ * Export image by rendering everything in full resolution, reading resulting pixels and saving them
+ * to file in a specific format
+ *
+ * @param con Complete RendererControl struct
+ * @param path Path where to save the exported image. This function takes ownership and 
+ * handles freeing the resources
+ *
+ * @return True on success
+ */
 gboolean export(RendererControl* con, char* path) {
     int width = con->width;
     int height = con->height;
@@ -475,6 +484,7 @@ gboolean export(RendererControl* con, char* path) {
 
     gdk_pixbuf_save(pxbuf, path, "jpeg", NULL, "quality", "100", NULL);
 
+    free(path);
 
     return true;
 }

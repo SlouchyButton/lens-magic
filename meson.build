@@ -59,7 +59,6 @@ test_c_args = [
   '-Wold-style-definition',
   '-Wpointer-arith',
   '-Wredundant-decls',
-  '-Wstrict-prototypes',
   '-Wswitch-default',
   '-Wswitch-enum',
   '-Wundef',

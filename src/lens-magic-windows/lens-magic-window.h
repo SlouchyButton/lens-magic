@@ -30,6 +30,9 @@ typedef struct Adjustments_ {
     AdjustmentElements temperature;
     AdjustmentElements tint;
     AdjustmentElements saturation;
+    AdjustmentElements color_hue;
+    AdjustmentElements color_saturation;
+    AdjustmentElements color_lightness;
     AdjustmentElements noise_reduction;
     AdjustmentElements noise_reduction_sharpen;
 } Adjustments;
