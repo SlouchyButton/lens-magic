@@ -11,6 +11,25 @@
         <child>
           <object class="GtkHeaderBar" id="header_bar">
             <child>
+              <object class="GtkBox" id="processing_spinner">
+                <property name="orientation">horizontal</property>
+                <property name="visible">false</property>
+                <child>
+                  <object class="GtkSpinner">
+                    <property name="spinning">true</property>
+                    <property name="margin-start">5</property>
+                    <!--<property name="width-request">20</property>-->
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">Processing image</property>
+                    <property name="margin-start">5</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
               <object class="GtkButton" id="open_file_button">
                 <property name="label">Open</property>
                 <style>

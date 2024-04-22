@@ -4,6 +4,7 @@ lens_magic_sources = [
   'lens-magic-windows/lens-magic-window.c',
   'lens-magic-windows/signals/lens-magic-window-signals.c',
   'rendering/image-renderer.c',
+  'rendering/image-processing.c',
 ]
 
 subdir('shaders')

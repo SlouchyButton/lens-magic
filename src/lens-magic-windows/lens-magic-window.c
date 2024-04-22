@@ -1,9 +1,9 @@
 #include <epoxy/gl.h>
-#include <libraw.h>
 
 #include "config.h"
 #include "lens-magic-window.h"
 #include "signals/lens-magic-window-signals.h"
+#include "rendering/image-processing.h"
 
 G_DEFINE_FINAL_TYPE (LensMagicWindow, lens_magic_window, ADW_TYPE_APPLICATION_WINDOW)
 
@@ -22,6 +22,8 @@ static void lens_magic_window_class_init (LensMagicWindowClass *klass)
 	gtk_widget_class_set_template_from_resource (widget_class, "/org/slouchybutton/LensMagic/gtk/lens-magic-window.ui");
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, header_bar);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, testbox);
+
+    gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, processing_spinner);
 
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, open_file_button);
     gtk_widget_class_bind_template_child (widget_class, LensMagicWindow, export_button);
@@ -194,64 +196,17 @@ void on_open_response(GObject *source_object, GAsyncResult *res, LensMagicWindow
     {
         return;
     }
-    g_autofree char *file_name = g_file_get_basename(file);
-    g_autofree char *path = g_file_get_path(file);
+    //g_autofree char *file_name = g_file_get_basename(file);
+    char *path = g_file_get_path(file);
 
-    libraw_data_t* libraw_handle = libraw_init(0);
-    if (!libraw_handle) {
-        fprintf(stderr, "Cannot create libraw handle\n");
-        return;
-    }
+    self->con.original_path = path;
 
-    libraw_handle->params.use_camera_wb = 1;
-    libraw_handle->params.use_auto_wb = 0;
-    libraw_handle->params.no_auto_bright = 1;
-    libraw_handle->params.output_bps = 16;
-    libraw_handle->params.adjust_maximum_thr = 0.0;
-    libraw_handle->params.user_qual = 12;
+    gtk_widget_set_visible((GtkWidget*)self->processing_spinner, TRUE);
 
-
-    if (libraw_open_file(libraw_handle, path) == 0) {
-        printf("Processing %s %s %s\n", path, libraw_handle->idata.make,
-           libraw_handle->idata.model);
-        libraw_unpack(libraw_handle);
-        libraw_dcraw_process(libraw_handle);
-        g_autofree libraw_processed_image_t* image = libraw_dcraw_make_mem_image(libraw_handle, NULL);
-
-        free(self->con.image_data);
-        self->con.image_data = calloc(image->width * image->height * 3, sizeof(uint16_t));
-        memcpy(self->con.image_data, image->data, image->width * image->height * 3 * sizeof(uint16_t));
-
-        self->con.width = image->width;
-        self->con.height = image->height;
-        self->con.bit_depth = image->bits;
-    } else {
-        fprintf(stderr, "Couldn't open file using libraw, trying gdk fallback\n");
-        g_autofree GdkPixbuf* pixbuf = gdk_pixbuf_new_from_file(path, NULL);
-        guint len = 0;
-        guchar* pix = gdk_pixbuf_get_pixels_with_length (pixbuf, &len);
-
-        free(self->con.image_data);
-        self->con.image_data = calloc(len, sizeof(guchar));
-        memcpy(self->con.image_data, pix, len * sizeof(guchar));
-        self->con.width = gdk_pixbuf_get_width(pixbuf);
-        self->con.height = gdk_pixbuf_get_height(pixbuf);
-        self->con.bit_depth = 8;
-    }
-    libraw_close(libraw_handle);
-
-    if (self->con.height > 1080) {
-        self->con.preview_height = self->con.height / 4;
-        self->con.preview_width = self->con.width / 4;
-    } else {
-        self->con.preview_height = self->con.height;
-        self->con.preview_width = self->con.width;
-    }
-
-    self->con.texture_refresh_pending = true;
+    g_thread_new("image_processing", process_image, (gpointer)self);
 
     //refresh_textures(&self->con); 
-    redraw_image((GtkGLArea*)self->gl_area);
+    //redraw_image((GtkGLArea*)self->gl_area);
 }
 
 void export_file(GtkButton* btn, LensMagicWindow* self) {
@@ -272,5 +227,3 @@ void on_export_response(GObject *source_object, GAsyncResult *res, LensMagicWind
     self->con.export_pending = true;
     redraw_image((GtkGLArea*)self->gl_area);
 }
-
-

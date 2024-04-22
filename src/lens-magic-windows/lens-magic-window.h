@@ -44,6 +44,8 @@ struct _LensMagicWindow {
     Adjustments     elements;
 
     /* Template widgets */
+    GtkBox*             processing_spinner;
+
     GtkHeaderBar*       header_bar;
     GtkButton*          open_file_button;
     GtkButton*          export_button;

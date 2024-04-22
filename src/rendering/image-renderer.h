@@ -78,6 +78,7 @@ typedef struct RendererControl_ {
 
     // Control
     gboolean        show_original;
+    char*           original_path;
     gboolean        export_pending;
     char*           export_path;
 
