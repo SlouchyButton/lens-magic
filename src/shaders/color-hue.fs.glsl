@@ -3,7 +3,7 @@ in vec2 TexCoord;
 out vec4 FragColor;
 uniform sampler2D image;
 uniform float value;
-uniform int hue;
+uniform float hue;
 
 vec4 rgb_to_hsl(vec4 rgb) {
    vec4 hsl = rgb;
@@ -82,9 +82,7 @@ void main() {
 
    texHSL.x = texHSL.x + (value * coeff);
 
-   if (texHSL.x < 0) {
-      texHSL.x += 360;
-   }
+   texHSL.x = abs(mod(texHSL.x, 360)); // if we go over 360 or into negative, normalize it
 
    FragColor = hsl_to_rgb(texHSL);
 }

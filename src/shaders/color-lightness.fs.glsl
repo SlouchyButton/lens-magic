@@ -3,7 +3,7 @@ in vec2 TexCoord;
 out vec4 FragColor;
 uniform sampler2D image;
 uniform float value;
-uniform int hue;
+uniform float hue;
 
 vec4 rgb_to_hsl(vec4 rgb) {
    vec4 hsl = rgb;
