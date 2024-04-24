@@ -505,8 +505,8 @@
                             <property name="width-request">200</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment">
-                                <property name="lower">-90</property>
-                                <property name="upper">90</property>
+                                <property name="lower">-50</property>
+                                <property name="upper">50</property>
                                 <property name="value">0</property>
                               </object>
                             </property>

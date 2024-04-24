@@ -385,9 +385,9 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
 
     render_fb(con, true, con->programs.color_hue, (ShaderArgument[]){
         {"value", con->settings.color_presets[0].color_hue}, {"hue", 0}}, 2);
-    render_fb(con, true, con->programs.color_lightness, (ShaderArgument[]){
+    render_fb(con, true, con->programs.color_hue, (ShaderArgument[]){
         {"value", con->settings.color_presets[1].color_hue}, {"hue", 120}}, 2);
-    render_fb(con, true, con->programs.color_lightness, (ShaderArgument[]){
+    render_fb(con, true, con->programs.color_hue, (ShaderArgument[]){
         {"value", con->settings.color_presets[2].color_hue},{"hue", 240}}, 2);
 
     render_fb(con, true, con->programs.temperature, &(ShaderArgument){"value", con->settings.temperature}, 1);
@@ -464,9 +464,9 @@ gboolean export(RendererControl* con, char* path) {
 
     render_fb(con, false, con->programs.color_hue, (ShaderArgument[]){
         {"value", con->settings.color_presets[0].color_hue}, {"hue", 0}}, 2);
-    render_fb(con, false, con->programs.color_lightness, (ShaderArgument[]){
+    render_fb(con, false, con->programs.color_hue, (ShaderArgument[]){
         {"value", con->settings.color_presets[1].color_hue}, {"hue", 120}}, 2);
-    render_fb(con, false, con->programs.color_lightness, (ShaderArgument[]){
+    render_fb(con, false, con->programs.color_hue, (ShaderArgument[]){
         {"value", con->settings.color_presets[2].color_hue},{"hue", 240}}, 2);
 
     render_fb(con, false, con->programs.temperature, &(ShaderArgument){"value", con->settings.temperature}, 1);
@@ -483,8 +483,6 @@ gboolean export(RendererControl* con, char* path) {
     GdkPixbuf* pxbuf = gdk_pixbuf_new_from_data(fb_data, GDK_COLORSPACE_RGB, false, 8, width, height, width*3, NULL, NULL);
 
     gdk_pixbuf_save(pxbuf, path, "jpeg", NULL, "quality", "100", NULL);
-
-    free(path);
 
     return true;
 }
