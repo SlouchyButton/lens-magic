@@ -202,6 +202,7 @@ void on_open_response(GObject *source_object, GAsyncResult *res, LensMagicWindow
     self->con.original_path = path;
 
     gtk_widget_set_visible((GtkWidget*)self->processing_spinner, TRUE);
+    gtk_widget_set_sensitive((GtkWidget*)self->open_file_button, FALSE);
 
     g_thread_new("image_processing", process_image, (gpointer)self);
 

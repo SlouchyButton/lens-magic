@@ -4,7 +4,7 @@
 
 /**
  * Wrapper function to be called by g_idle_add. 
- * Calls redraw_image from image-renderer.
+ * Calls redraw_image from image-renderer. Also hides spinner and changes button sensitivity.
  *
  * @param   data     Pointer to LensMagicWindow struct
  */
@@ -12,6 +12,7 @@ gboolean render_processed_image(gpointer data) {
     LensMagicWindow* self = (LensMagicWindow*) data;
     redraw_image((GtkGLArea*)self->gl_area);
     gtk_widget_set_visible((GtkWidget*)self->processing_spinner, FALSE);
+    gtk_widget_set_sensitive((GtkWidget*)self->open_file_button, TRUE);
     return FALSE;
 }
 
