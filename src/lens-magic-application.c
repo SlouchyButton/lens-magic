@@ -57,7 +57,7 @@ lens_magic_application_about_action (GSimpleAction *action,
                                      GVariant      *parameter,
                                      gpointer       user_data)
 {
-	static const char *developers[] = {"Aleš Nezbeda", NULL};
+	static const char *developers[] = {"Aleš Nezbeda", "Michele Morrone (glslSmartDeNoise)", NULL};
 	LensMagicApplication *self = user_data;
 	GtkWindow *window = NULL;
 
@@ -71,7 +71,7 @@ lens_magic_application_about_action (GSimpleAction *action,
 	                       "developer-name", "Aleš Nezbeda",
 	                       "version", "0.1.0",
 	                       "developers", developers,
-	                       "copyright", "©2023 Aleš Nezbeda\n\nMichele Morrone - glslSmartDeNoise (BSD 2-Clause license)",
+	                       "copyright", "Mozilla Public License 2.0\n\nMichele Morrone - glslSmartDeNoise (BSD 2-Clause license)",
 	                       NULL);
 }
 

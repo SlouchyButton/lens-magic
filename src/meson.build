@@ -11,6 +11,7 @@ subdir('shaders')
 
 lens_magic_deps = [
   dependency('gtk4'),
+  dependency('pango'),
   dependency('GL'),
   dependency('epoxy'),
   dependency('libraw'),
