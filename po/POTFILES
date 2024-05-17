@@ -1,6 +1,6 @@
-data/org.slouchybutton.LensMagic.desktop.in
-data/org.slouchybutton.LensMagic.appdata.xml.in
-data/org.slouchybutton.LensMagic.gschema.xml
+data/com.alesnezbeda.lens-magic.desktop.in
+data/com.alesnezbeda.lens-magic.appdata.xml.in
+data/com.alesnezbeda.lens-magic.gschema.xml
 src/main.c
 src/lens-magic-window.c
 src/lens-magic-window.ui

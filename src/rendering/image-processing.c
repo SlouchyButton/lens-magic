@@ -31,8 +31,8 @@ gpointer process_image(gpointer data) {
     libraw_handle->params.adjust_maximum_thr = 0.0;
     libraw_handle->params.user_qual = 12;
 
-
-    if (libraw_open_file(libraw_handle, self->con.original_path) == 0) {
+    int libraw_error = 0;
+    if ((libraw_error = libraw_open_file(libraw_handle, self->con.original_path)) == 0) {
         printf("Processing %s %s %s\n", self->con.original_path, libraw_handle->idata.make,
            libraw_handle->idata.model);
         libraw_unpack(libraw_handle);
@@ -47,8 +47,16 @@ gpointer process_image(gpointer data) {
         self->con.height = image->height;
         self->con.bit_depth = image->bits;
     } else {
-        fprintf(stderr, "Couldn't open file using libraw, trying gdk fallback\n");
-        g_autofree GdkPixbuf* pixbuf = gdk_pixbuf_new_from_file(self->con.original_path, NULL);
+        fprintf(stderr, "Couldn't open file using libraw (errno: %d), trying gdk fallback\n",
+            libraw_error);
+        GError* err = NULL;
+        g_autofree GdkPixbuf* pixbuf = gdk_pixbuf_new_from_file(self->con.original_path, &err);
+        if (err) {
+            fprintf(stderr, "Couldn't open file using gdk fallback (err: %s), not continuing\n",
+                err->message);
+            g_idle_add(render_processed_image, data);
+            return NULL;
+        }
         guint len = 0;
         guchar* pix = gdk_pixbuf_get_pixels_with_length (pixbuf, &len);
 

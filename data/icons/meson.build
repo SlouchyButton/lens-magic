@@ -1,4 +1,4 @@
-application_id = 'org.slouchybutton.LensMagic'
+application_id = 'com.alesnezbeda.lens-magic'
 
 scalable_dir = join_paths('hicolor', 'scalable', 'apps')
 install_data(

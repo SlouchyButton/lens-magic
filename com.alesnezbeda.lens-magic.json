@@ -1,5 +1,5 @@
 {
-    "app-id" : "org.slouchybutton.LensMagic",
+    "app-id" : "com.alesnezbeda.lens-magic",
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "master",
     "sdk" : "org.gnome.Sdk",

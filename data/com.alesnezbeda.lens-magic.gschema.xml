@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="lens-magic">
-	<schema id="org.slouchybutton.LensMagic" path="/org/slouchybutton/LensMagic/">
+	<schema id="com.alesnezbeda.lens-magic" path="/com/alesnezbeda/lens-magic/">
 	</schema>
 </schemalist>
