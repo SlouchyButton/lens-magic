@@ -173,6 +173,7 @@ static void lens_magic_window_init(LensMagicWindow *self) {
     gtk_widget_set_vexpand (self->gl_area, TRUE);
     gtk_widget_set_size_request (self->gl_area, 100, 200);
     gtk_box_append (GTK_BOX (self->testbox), self->gl_area);
+    gtk_gl_area_set_required_version(GTK_GL_AREA (self->gl_area), 3, 3);
     self->con.ogl_frame = self->gl_area;
 
     g_signal_connect(self->gl_area, "realize", G_CALLBACK (realize), &self->con);

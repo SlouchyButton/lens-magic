@@ -3,7 +3,7 @@ Fast and easy to use app for photo development and quick tweaks that supports RA
 
 ![App screenshot](screenshot.png)
 
-*Application is in early development and is not ready for production use. Main branch should be kept in working state.*
+*Application is in early development. Main branch should be kept in working state.*
 
 Testing and feedback is very appreciated!
 

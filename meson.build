@@ -70,6 +70,11 @@ test_c_args = [
 if get_option('buildtype') != 'plain'
   test_c_args += '-fstack-protector-strong'
 endif
+
+if get_option('buildtype') != 'debug'
+  test_c_args += '-D NDEBUG'
+endif
+
 foreach arg: test_c_args
   if cc.has_multi_arguments(arg)
     project_c_args += arg
