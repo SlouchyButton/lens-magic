@@ -1,8 +1,8 @@
 [Desktop Entry]
-Name=lens-magic
+Name=Lens Magic
 Exec=lens-magic
 Icon=com.alesnezbeda.lens-magic
 Terminal=false
 Type=Application
-Categories=GTK;
+Categories=Graphics;GTK;
 StartupNotify=true

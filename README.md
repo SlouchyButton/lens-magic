@@ -7,11 +7,14 @@ Fast and easy to use app for photo development and quick tweaks that supports RA
 
 Testing and feedback is very appreciated!
 
-This project aims to fill in the gap on Linux for easy to use app for RAW development and image tweaking. Goal of this app is to be easy as possible, follow GNOME style and be fast.
+This project aims to fill in the gap on Linux for easy to use app for RAW development and 
+image tweaking. Goal of this app is to be easy as possible, follow GNOME style and be fast.
+This should be achieved by using libadwaita for UI and OpenGL for the rendering.
 
 ## Current stage
 - It is possible to open normal and RAW image
-    - Uses libraw library - currently only loads image processed by the library itself with maximum quality, camera WB and no auto brightness
+    - Uses libraw library - currently only loads image processed by the library itself with 
+    maximum quality, camera WB and no auto brightness
     - Normal images are opened by creating gdk_pixbuf (for now)
 - Modify lightness and color of the picture
     - Some features are not fully completed yet

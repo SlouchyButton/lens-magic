@@ -3,7 +3,36 @@
 	<id>com.alesnezbeda.lens-magic.desktop</id>
 	<metadata_license>MPL-2.0</metadata_license>
 	<project_license>MPL-2.0</project_license>
+	<name>Lens Magic</name>
+	<summary>App for photo development and tweaking with support for RAW images<summary>
 	<description>
-	  <p>App for photo development and tweaking with support for RAW images</p>
+	  <p>This project aims to fill in the gap on Linux for easy to use app for RAW development and 
+	  image tweaking. Goal of this app is to be easy as possible, follow GNOME style and be fast. 
+	  This should be achieved by using libadwaita for UI and OpenGL for the rendering.</p>
 	</description>
+
+	<launchable type="desktop-id">com.alesnezbeda.lens-magic.desktop</launchable>
+
+	<screenshots>
+		<screenshot type="default">
+		<caption>Main application window</caption>
+		<image>https://raw.githubusercontent.com/SlouchyButton/lens-magic/main/screenshot.png</image>
+		</screenshot>
+	</screenshots>
+
+	<url type="homepage">https://github.com/SlouchyButton/lens-magic</url>
+
+	<provides>
+		<binary>lens-magic</binary>
+	</provides>
+
+	<releases>
+		<release version="0.1.0" date="2024-05-20">
+		<description>
+			<p>First release in a working usable state.</p>
+
+			<p>There are few compatibility issues, but the application is usable.</p>
+		</description>
+		</release>
+	</releases>
 </component>
