@@ -4,7 +4,7 @@
 	<metadata_license>MPL-2.0</metadata_license>
 	<project_license>MPL-2.0</project_license>
 	<name>Lens Magic</name>
-	<summary>App for photo development and tweaking with support for RAW images<summary>
+	<summary>App for photo development and tweaking with support for RAW images</summary>
 	<description>
 	  <p>This project aims to fill in the gap on Linux for easy to use app for RAW development and 
 	  image tweaking. Goal of this app is to be easy as possible, follow GNOME style and be fast. 
