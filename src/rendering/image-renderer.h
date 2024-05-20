@@ -50,6 +50,8 @@ typedef struct RendererControl_ {
     GtkWidget*      ogl_frame;
     GdkPixbuf*      pxb_original;
     void*           image_data;
+    int             original_height;
+    int             original_width;
     int             preview_height;
     int             preview_width;
     int             height;
@@ -73,6 +75,7 @@ typedef struct RendererControl_ {
     GLuint          VAO;
     GLuint          VBO;
     GLuint          EBO;
+    GLint           max_tex_size;
 
     int             processed_fbs_count;
 

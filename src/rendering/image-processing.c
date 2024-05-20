@@ -43,8 +43,8 @@ gpointer process_image(gpointer data) {
         self->con.image_data = calloc(image->width * image->height * 3, sizeof(uint16_t));
         memcpy(self->con.image_data, image->data, image->width * image->height * 3 * sizeof(uint16_t));
 
-        self->con.width = image->width;
-        self->con.height = image->height;
+        self->con.original_width = image->width;
+        self->con.original_height = image->height;
         self->con.bit_depth = image->bits;
     } else {
         fprintf(stderr, "Couldn't open file using libraw (errno: %d), trying gdk fallback\n",
@@ -63,18 +63,29 @@ gpointer process_image(gpointer data) {
         free(self->con.image_data);
         self->con.image_data = calloc(len, sizeof(guchar));
         memcpy(self->con.image_data, pix, len * sizeof(guchar));
-        self->con.width = gdk_pixbuf_get_width(pixbuf);
-        self->con.height = gdk_pixbuf_get_height(pixbuf);
+        self->con.original_width = gdk_pixbuf_get_width(pixbuf);
+        self->con.original_height = gdk_pixbuf_get_height(pixbuf);
         self->con.bit_depth = 8;
     }
     libraw_close(libraw_handle);
 
-    if (self->con.height > 1080) {
-        self->con.preview_height = self->con.height / 4;
-        self->con.preview_width = self->con.width / 4;
+
+    if (self->con.original_height > self->con.max_tex_size || self->con.original_width > self->con.max_tex_size) {
+        self->con.width = self->con.max_tex_size;
+        self->con.height = ((gdouble)self->con.original_height/self->con.original_width)*self->con.max_tex_size;
+        if (self->con.height > self->con.max_tex_size) {
+            self->con.width = ((gdouble)self->con.original_width/self->con.original_height)*self->con.max_tex_size;
+            self->con.height = self->con.max_tex_size;
+        }
+        printf("Image is bigger than what OGL can render new dimensions: %dx%d\n", self->con.width, self->con.height);
+    }
+
+    if (self->con.original_height > 1080) {
+        self->con.preview_height = self->con.original_height / 4;
+        self->con.preview_width = self->con.original_width / 4;
     } else {
-        self->con.preview_height = self->con.height;
-        self->con.preview_width = self->con.width;
+        self->con.preview_height = self->con.original_height;
+        self->con.preview_width = self->con.original_width;
     }
 
     self->con.texture_refresh_pending = true;

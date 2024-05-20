@@ -148,7 +148,7 @@ void refresh_textures(RendererControl* con) {
     // won't render correctly
     glBindTexture(GL_TEXTURE_2D, con->tex_base);
         glTexImage2D(GL_TEXTURE_2D, 0, con->bit_depth == 16 ? GL_RGB16 : GL_RGB8, 
-            con->width, con->height, 0, GL_RGB, 
+            con->original_width, con->original_height, 0, GL_RGB, 
             con->bit_depth == 16 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE, con->image_data);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -251,6 +251,9 @@ void realize(GtkWidget *widget, RendererControl* con) {
     prepare_textures(con);
 
     printf("Initialized OpenGL\n");
+    con->max_tex_size = 0;
+    glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &con->max_tex_size);
+    printf("Max texture size: %d\n", con->max_tex_size);
 }
 
 void unrealize(GtkWidget *widget) {
@@ -431,6 +434,7 @@ gboolean render(GtkGLArea* area, GdkGLContext* context, RendererControl* con) {
 gboolean export(RendererControl* con, char* path) {
     int width = con->width;
     int height = con->height;
+    
 
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glViewport(0, 0, width, height);
@@ -475,7 +479,7 @@ gboolean export(RendererControl* con, char* path) {
     
     uint8_t* fb_data = calloc(width*height, sizeof(uint8_t)*3);
 
-    glReadnPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, sizeof(uint8_t)*3*width*height, fb_data);
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, fb_data);
 
     // Flush the contents of the pipeline
     glFlush();
