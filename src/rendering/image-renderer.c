@@ -250,10 +250,10 @@ void realize(GtkWidget *widget, RendererControl* con) {
 
     prepare_textures(con);
 
-    printf("Initialized OpenGL\n");
+    g_print("Initialized OpenGL\n");
     con->max_tex_size = 0;
     glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &con->max_tex_size);
-    printf("Max texture size: %d\n", con->max_tex_size);
+    g_print("Max texture size: %d\n", con->max_tex_size);
 }
 
 void unrealize(GtkWidget *widget) {

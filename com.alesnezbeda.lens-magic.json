@@ -24,21 +24,21 @@
     ],
     "modules" : [
         {
-            "name": "libraw",
-            "builddir": true,
-            "config-opts": [
+            "name" : "libraw",
+            "builddir" : true,
+            "config-opts" : [
                 "--disable-examples",
                 "--disable-static"
             ],
-            "sources": [
+            "sources" : [
                 {
-                    "type": "archive",
-                    "url": "https://www.libraw.org/data/LibRaw-0.21.2.tar.gz",
-                    "sha256": "fe7288013206854baf6e4417d0fb63ba4ed7227bf36fff021992671c2dd34b03"
+                    "type" : "archive",
+                    "url" : "https://www.libraw.org/data/LibRaw-0.21.2.tar.gz",
+                    "sha256" : "fe7288013206854baf6e4417d0fb63ba4ed7227bf36fff021992671c2dd34b03"
                 },
                 {
-                    "type": "shell",
-                    "commands": [
+                    "type" : "shell",
+                    "commands" : [
                         "autoreconf -vfi"
                     ]
                 }
@@ -53,7 +53,13 @@
                     "type" : "git",
                     "url" : "https://github.com/SlouchyButton/lens-magic"
                 }
+            ],
+            "config-opts" : [
+                "--libdir=lib"
             ]
         }
-    ]
+    ],
+    "build-options" : {
+        "env" : {        }
+    }
 }
