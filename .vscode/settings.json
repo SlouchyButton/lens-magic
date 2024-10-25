@@ -1,3 +1,6 @@
 {
-    "C_Cpp.default.compileCommands": "builddir/compile_commands.json"
+    "C_Cpp.default.compileCommands": "build/compile_commands.json",
+    "files.associations": {
+        "cstdlib": "c"
+    }
 }

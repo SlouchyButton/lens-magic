@@ -77,22 +77,12 @@ __kernel void exposure(__read_only image2d_t input, __write_only image2d_t outpu
     const int2 pos = (int2)(get_global_id(0), get_global_id(1));
     uint4 pixel = read_imageui(input, pos);
 
-    for (int j = 0; j < 3; j++) {
-        int new_val = pixel[j] * pow(2, val);
-        if (new_val > 255) {
-            pixel.x = 255;
-            pixel.y = 255;
-            pixel.z = 255;
-            break;
-        } else if (new_val < 0) {
-            pixel.x = 0;
-            pixel.y = 0;
-            pixel.z = 0;
-            break;
-        } else {
-            pixel[j] = new_val;
-        }
-    }
+    double3 fpixel = (double3)(pixel.x/255.0, pixel.y/255.0, pixel.z/255.0);
+
+    fpixel = fpixel * pow(2, val);
+    pixel.x = fpixel.x*255;
+    pixel.y = fpixel.y*255;
+    pixel.z = fpixel.z*255;
     write_imageui(output, pos, pixel);
 }
 

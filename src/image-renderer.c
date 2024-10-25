@@ -2,7 +2,7 @@
 #include "color-utils.h"
 #include "hw-renderer.h"
 
-void exposure_apply(GdkPixbuf* pxb, gdouble val);
+void exposure_apply(uint8_t* pixels, int width, int height, gdouble val);
 void brightness_apply(GdkPixbuf* pxb, gdouble val);
 void contrast_apply(GdkPixbuf* pxb, gdouble val);
 void highlights_apply(GdkPixbuf* pxb, gdouble val);
@@ -14,10 +14,7 @@ void color_hue_apply(GdkPixbuf* pxb, gdouble val);
 void color_saturation_apply(GdkPixbuf* pxb, gdouble val);
 void color_lightness_apply(GdkPixbuf* pxb, gdouble val);
 
-void exposure_apply(GdkPixbuf* pxb, gdouble val) {
-    guint len = 0;
-    guchar* pix = NULL;
-    pix = gdk_pixbuf_get_pixels_with_length (pxb, &len);
+void exposure_apply(uint8_t* pixels, int width, int height, gdouble val) {
     /*for (int i = 0; i < len; i = i+3+has_alpha) {
       for (int j = 0; j < 3; j++) {
         int new = pix[i+j] * pow(2, val);
@@ -36,8 +33,7 @@ void exposure_apply(GdkPixbuf* pxb, gdouble val) {
         }
       }
     }*/
-
-    hw_set("exposure", pix, gdk_pixbuf_get_width(pxb), gdk_pixbuf_get_height(pxb), val);
+    hw_set("exposure", pixels, width, height, val);
 }
 
 void brightness_apply(GdkPixbuf* pxb, gdouble val) {
@@ -364,10 +360,10 @@ void color_lightness_apply(GdkPixbuf* pxb, gdouble val) {
                     (int[]){340, 15}, 2);
 }
 
-void render_pixbuf(GdkPixbuf* pxb, Preset settings) {
+void render_pixbuf(uint8_t* pixels, int width, int height, Preset settings) {
     if (settings.exposure != 0)
-        exposure_apply (pxb, settings.exposure);
-    if (settings.brightness != 0)
+        exposure_apply (pixels, width, height, settings.exposure);
+    /*if (settings.brightness != 0)
         brightness_apply (pxb, settings.brightness);
     if (settings.contrast != 1 && settings.contrast != 0)
         contrast_apply (pxb, settings.contrast);
@@ -386,12 +382,13 @@ void render_pixbuf(GdkPixbuf* pxb, Preset settings) {
     if (settings.color_saturation != 0)
         color_saturation_apply (pxb, settings.color_saturation);
     if (settings.color_lightness != 0)
-        color_lightness_apply (pxb, settings.color_lightness);
+        color_lightness_apply (pxb, settings.color_lightness);*/
 }
 
 gboolean set_picture(gpointer data) {
     RendererControl* con = (RendererControl*)data;
 
+    gtk_picture_set_paintable (con->picture, NULL);
     gtk_picture_set_paintable (con->picture, GDK_PAINTABLE(con->tex_rendered));
 
     return false;
@@ -413,14 +410,26 @@ gpointer renderer(gpointer data) {
         con->pending_refresh = false;
         g_mutex_unlock (&con->data_mutex);
 
-        GdkPixbuf* pxb = gdk_pixbuf_copy(con->pxb_original);
+        guint len = 0;
+        guchar* pix = NULL;
+        pix = gdk_pixbuf_get_pixels_with_length (con->pxb_original, &len);
+        int width = gdk_pixbuf_get_width(con->pxb_original);
+        int height = gdk_pixbuf_get_height(con->pxb_original);
 
-        render_pixbuf (pxb, settings);
+        uint8_t* pixels = malloc(len);
+        memcpy(pixels, pix, len);
+
+        render_pixbuf (pixels, width, height, settings);
+
+        GBytes* bytes = g_bytes_new_take(pixels, len);
 
         g_object_unref (con->tex_rendered);
-        con->tex_rendered = gdk_texture_new_for_pixbuf(pxb);
-        g_object_unref (pxb);
+        con->tex_rendered = gdk_memory_texture_new(width, height,
+                                                    GDK_MEMORY_R8G8B8A8,
+                                                    bytes,
+                                                    width*4);
 
+        g_bytes_unref(bytes);
         g_idle_add (set_picture, data);
     }
 

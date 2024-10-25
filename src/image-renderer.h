@@ -28,6 +28,6 @@ typedef struct RendererControl_ {
     gboolean        kill_thread;
 } RendererControl;
 
-void render_pixbuf(GdkPixbuf* pxb, Preset settings);
+void render_pixbuf(uint8_t* pixels, int width, int height, Preset settings);
 gpointer renderer(gpointer data);
 

@@ -19,6 +19,11 @@ char name[50] = {0};
 
 int hw_init(void) {
     int err = clGetPlatformIDs(5, platforms, &platform_cnt);
+    if (err != CL_SUCCESS)
+    {
+        printf("Failed to detect platforms #%d\n", err);
+        return 1;
+    }
     printf("Detected %d platforms:\n", platform_cnt);
 
     for (int i = 0; i < platform_cnt; i++) {
