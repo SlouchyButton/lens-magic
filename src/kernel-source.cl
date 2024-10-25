@@ -1,3 +1,5 @@
+__constant sampler_t smplr = CLK_FILTER_NEAREST | CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE;
+
 __kernel void rgb_to_hsl(unsigned int r, unsigned int g, unsigned int b,
                             __local double *h, __local double *s, __local double *l) {
     double dr = r / 255.0;
@@ -75,15 +77,10 @@ __kernel void hsl_to_rgb(double h, double s, double l,
 
 __kernel void exposure(__read_only image2d_t input, __write_only image2d_t output, const double val) {
     const int2 pos = (int2)(get_global_id(0), get_global_id(1));
-    uint4 pixel = read_imageui(input, pos);
+    float4 pixel = read_imagef(input, smplr, pos);
 
-    double3 fpixel = (double3)(pixel.x/255.0, pixel.y/255.0, pixel.z/255.0);
-
-    fpixel = fpixel * pow(2, val);
-    pixel.x = fpixel.x*255;
-    pixel.y = fpixel.y*255;
-    pixel.z = fpixel.z*255;
-    write_imageui(output, pos, pixel);
+    pixel = pixel * (float)pow(2, val);
+    write_imagef(output, pos, pixel);
 }
 
 __kernel void brightness(__read_only image2d_t input, __write_only image2d_t output, const double val) {
