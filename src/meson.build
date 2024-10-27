@@ -3,21 +3,26 @@ lens_magic_sources = [
   'lens-magic-application.c',
   'lens-magic-windows/lens-magic-window.c',
   'lens-magic-windows/signals/lens-magic-window-signals.c',
-  'rendering/image-renderer.c',
+  'rendering/opencl-renderer.c',
   'rendering/image-processing.c',
+  'rendering/renderer.c',
 ]
 
 subdir('shaders')
+subdir('kernels')
 
 lens_magic_deps = [
   dependency('gtk4'),
   dependency('pango'),
+  dependency('OpenCL'),
+  dependency('OpenCL-Headers'),
   dependency('GL'),
   dependency('epoxy'),
   dependency('libraw'),
   dependency('libadwaita-1', version: '>= 1.2'),
   cc.find_library('m', required : false),
-  shaders_source_dep
+  shaders_source_dep,
+  kernels_source_dep
 ]
 
 lens_magic_sources += gnome.compile_resources('lens-magic-resources',

@@ -1,13 +1,8 @@
 #pragma once
 
 #include <adwaita.h>
-#include <math.h>
-#include <epoxy/gl.h>
 
-typedef struct ShaderArgument_ {
-    const gchar*      name;
-    gdouble     value;
-} ShaderArgument;
+#include "opencl-renderer.h"
 
 typedef struct ColorPreset_ {
     gdouble      color_hue;
@@ -29,27 +24,13 @@ typedef struct Preset_ {
     gdouble         noise_reduction_sharpen;
 } Preset;
 
-typedef struct Programs_ {
-    GLuint      plain;
-    GLuint      exposure;
-    GLuint      brightness;
-    GLuint      contrast;
-    GLuint      highlights;
-    GLuint      shadows;
-    GLuint      temperature;
-    GLuint      tint;
-    GLuint      saturation;
-    GLuint      color_hue;
-    GLuint      color_saturation;
-    GLuint      color_lightness;
-    GLuint      denoise;
-} Programs;
-
 typedef struct RendererControl_ {
     // Image data variables
     GtkWidget*      ogl_frame;
     GdkPixbuf*      pxb_original;
     void*           image_data;
+    void*           rendered_image_data;
+    int             image_data_size;
     int             original_height;
     int             original_width;
     int             preview_height;
@@ -57,25 +38,10 @@ typedef struct RendererControl_ {
     int             height;
     int             width;
     int             bit_depth;
+    GdkTexture*     tex_rendered;
 
     // Adjustments
     Preset          settings;
-
-    // OpenGL variables
-    GLuint          fb1;
-    GLuint          fb2;
-    GLuint          tex_base;
-    GLuint          tex_fb1;
-    GLuint          tex_fb2;
-    GLuint          preview_fb1;
-    GLuint          preview_fb2;
-    GLuint          preview_tex_fb1;
-    GLuint          preview_tex_fb2;
-    Programs        programs;
-    GLuint          VAO;
-    GLuint          VBO;
-    GLuint          EBO;
-    GLint           max_tex_size;
 
     int             processed_fbs_count;
 
@@ -86,12 +52,10 @@ typedef struct RendererControl_ {
     char*           export_path;
 
     gboolean        texture_refresh_pending;
+
+    // Renderer instance
+    CLInstance      cl_instance;
     
 } RendererControl;
 
-void refresh_textures(RendererControl* con);
-gboolean render (GtkGLArea* area, GdkGLContext* context, RendererControl* con);
-void unrealize (GtkWidget *widget);
-void realize (GtkWidget *widget, RendererControl* con);
-gboolean export(RendererControl* con, char* path);
-void redraw_image(GtkGLArea* gl_area);
+void redraw_image(RendererControl* con, GtkPicture* pic);

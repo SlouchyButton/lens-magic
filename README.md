@@ -26,9 +26,12 @@ UI and OpenGL for the rendering.
 - Export full resolution image
 - Modifications are previewed on 4x smaller image than original for speed
   reasons
-- Uses OpenGL for all rendering
-  - This makes it more compatible than OpenCL and Cuda and faster than software
+- Uses ~OpenGL~OpenCL for all rendering
+  - This makes it more compatible than ~OpenCL and~ Cuda and faster than software
     rendering
+  - Formerly OpenGL was used in hopes of better compatibility, but this introduced
+    new set of problems, while also not being as compatible (with GTK GlArea use)
+    as previously hoped for
 
 ## Next steps
 

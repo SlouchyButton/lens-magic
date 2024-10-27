@@ -4,13 +4,13 @@
 
 /**
  * Wrapper function to be called by g_idle_add. 
- * Calls redraw_image from image-renderer. Also hides spinner and changes button sensitivity.
+ * Calls redraw_image from opengl-renderer. Also hides spinner and changes button sensitivity.
  *
  * @param   data     Pointer to LensMagicWindow struct
  */
 gboolean render_processed_image(gpointer data) {
     LensMagicWindow* self = (LensMagicWindow*) data;
-    redraw_image((GtkGLArea*)self->gl_area);
+    //redraw_image((GtkGLArea*)self->gl_area);
     gtk_widget_set_visible((GtkWidget*)self->processing_spinner, FALSE);
     gtk_widget_set_sensitive((GtkWidget*)self->open_file_button, TRUE);
     return FALSE;
@@ -43,6 +43,7 @@ gpointer process_image(gpointer data) {
         self->con.image_data = calloc(image->width * image->height * 3, sizeof(uint16_t));
         memcpy(self->con.image_data, image->data, image->width * image->height * 3 * sizeof(uint16_t));
 
+        self->con.image_data_size = image->data_size;
         self->con.original_width = image->width;
         self->con.original_height = image->height;
         self->con.bit_depth = image->bits;
@@ -66,11 +67,12 @@ gpointer process_image(gpointer data) {
         self->con.original_width = gdk_pixbuf_get_width(pixbuf);
         self->con.original_height = gdk_pixbuf_get_height(pixbuf);
         self->con.bit_depth = 8;
+        self->con.image_data_size = len;
     }
     libraw_close(libraw_handle);
 
 
-    if (self->con.original_height > self->con.max_tex_size || self->con.original_width > self->con.max_tex_size) {
+    /*if (self->con.original_height > self->con.max_tex_size || self->con.original_width > self->con.max_tex_size) {
         self->con.width = self->con.max_tex_size;
         self->con.height = ((gdouble)self->con.original_height/self->con.original_width)*self->con.max_tex_size;
         if (self->con.height > self->con.max_tex_size) {
@@ -78,7 +80,10 @@ gpointer process_image(gpointer data) {
             self->con.height = self->con.max_tex_size;
         }
         printf("Image is bigger than what OGL can render new dimensions: %dx%d\n", self->con.width, self->con.height);
-    }
+    }*/
+
+   self->con.width = self->con.original_width;
+   self->con.height = self->con.original_height;
 
     if (self->con.original_height > 1080) {
         self->con.preview_height = self->con.original_height / 4;

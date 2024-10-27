@@ -16,7 +16,7 @@ void set_entry_value(GtkEntry* entry, gdouble value) {
 //----------------//
 gboolean original_switch_state_set(GtkSwitch* sw, gboolean state, LensMagicWindow* self) {
     self->con.show_original = state;
-    redraw_image ((GtkGLArea*)self->gl_area);
+    //redraw_image ((GtkGLArea*)self->gl_area);
     return false;
 }
 
@@ -32,7 +32,7 @@ gboolean adj_switch_state_set(GtkSwitch* sw, gboolean state, AdjustmentElements*
         *data->settings_value = 0;
     }
 
-    redraw_image ((GtkGLArea*)data->self->gl_area);
+    //redraw_image ((GtkGLArea*)data->self->gl_area);
     return false;
 }
 
@@ -43,7 +43,7 @@ void adj_scale_change(GtkRange* range, AdjustmentElements* data) {
 
     gtk_switch_set_active(data->sw, true);
 
-    redraw_image ((GtkGLArea*)data->self->gl_area);
+    redraw_image (&data->self->con, GTK_PICTURE(data->self->picture));
 }
 
 //------------------------//
@@ -87,7 +87,7 @@ void color_hue_scale_change(GtkRange* range, LensMagicWindow *self) {
 
     self->con.settings.color_presets[self->selected_filter].color_hue = val;
 
-    redraw_image ((GtkGLArea*)self->gl_area);
+    //redraw_image ((GtkGLArea*)self->gl_area);
 }
 
 void color_saturation_scale_change(GtkRange* range, LensMagicWindow *self) {
@@ -96,7 +96,7 @@ void color_saturation_scale_change(GtkRange* range, LensMagicWindow *self) {
 
     self->con.settings.color_presets[self->selected_filter].color_saturation = val;
 
-    redraw_image ((GtkGLArea*)self->gl_area);
+    //redraw_image ((GtkGLArea*)self->gl_area);
 }
 
 void color_lightness_scale_change(GtkRange* range, LensMagicWindow *self) {
@@ -105,5 +105,5 @@ void color_lightness_scale_change(GtkRange* range, LensMagicWindow *self) {
     
     self->con.settings.color_presets[self->selected_filter].color_lightness = val;
 
-    redraw_image ((GtkGLArea*)self->gl_area);
+    //redraw_image ((GtkGLArea*)self->gl_area);
 }

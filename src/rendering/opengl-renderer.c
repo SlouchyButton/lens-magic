@@ -1,4 +1,4 @@
-#include "image-renderer.h"
+#include "opengl-renderer.h"
 #include <unistd.h>
 #include <epoxy/gl.h>
 #include <epoxy/glx.h>

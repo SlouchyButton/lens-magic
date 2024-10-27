@@ -75,9 +75,9 @@ static void lens_magic_window_class_init(LensMagicWindowClass *klass) {
 static void lens_magic_window_init(LensMagicWindow *self) {
     gtk_widget_init_template (GTK_WIDGET (self));
 
-    // TODO: Don't particularly like having to do this, initializing widgets directly into it
-    // would be better, but haven't found a way of doing it with 
-    // gtk_widget_class_bind_template_child 
+    // TODO: Don't particularly like having to do this, initializing widgets
+    // directly into it would be better, but haven't found a way of doing it
+    // with gtk_widget_class_bind_template_child
     self->elements.exposure = (AdjustmentElements) { 
         self, self->exposure_switch, self->exposure_scale, 
         self->exposure_entry, &self->con.settings.exposure
@@ -168,19 +168,28 @@ static void lens_magic_window_init(LensMagicWindow *self) {
 
     memset(&self->con.settings, 0, sizeof(self->con.settings));
 
-    self->gl_area = gtk_gl_area_new();
+    self->con.rendered_image_data = NULL; // This will get freed on first render
+
+    /*self->gl_area = gtk_gl_area_new();
     gtk_widget_set_hexpand (self->gl_area, TRUE);
     gtk_widget_set_vexpand (self->gl_area, TRUE);
     gtk_widget_set_size_request (self->gl_area, 100, 200);
     gtk_box_append (GTK_BOX (self->testbox), self->gl_area);
     gtk_gl_area_set_required_version(GTK_GL_AREA (self->gl_area), 3, 3);
-    self->con.ogl_frame = self->gl_area;
+    self->con.ogl_frame = self->gl_area;*/
+    self->picture = gtk_picture_new();
+    gtk_widget_set_hexpand (self->picture, TRUE);
+    gtk_widget_set_vexpand (self->picture, TRUE);
+    gtk_widget_set_size_request (self->picture, 100, 200);
+    gtk_box_append (GTK_BOX (self->testbox), self->picture);
 
-    g_signal_connect(self->gl_area, "realize", G_CALLBACK (realize), &self->con);
-    g_signal_connect(self->gl_area, "unrealize", G_CALLBACK (unrealize), NULL);
-    g_signal_connect(self->gl_area, "render", G_CALLBACK (render), &self->con);
+    cl_init(&self->con.cl_instance);
 
-    redraw_image((GtkGLArea*)self->gl_area);
+    //g_signal_connect(self->gl_area, "realize", G_CALLBACK (realize), &self->con);
+    //g_signal_connect(self->gl_area, "unrealize", G_CALLBACK (unrealize), NULL);
+    //g_signal_connect(self->gl_area, "render", G_CALLBACK (render), &self->con);
+
+    //redraw_image((GtkGLArea*)self->gl_area);
 }
 
 void open_file(GtkButton* btn, LensMagicWindow* self) {
@@ -225,5 +234,5 @@ void on_export_response(GObject *source_object, GAsyncResult *res, LensMagicWind
     char* path = g_file_get_path(file);
     self->con.export_path = path;
     self->con.export_pending = true;
-    redraw_image((GtkGLArea*)self->gl_area);
+    //redraw_image((GtkGLArea*)self->gl_area);
 }
