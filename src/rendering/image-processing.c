@@ -40,10 +40,18 @@ gpointer process_image(gpointer data) {
         g_autofree libraw_processed_image_t* image = libraw_dcraw_make_mem_image(libraw_handle, NULL);
 
         free(self->con.image_data);
-        self->con.image_data = calloc(image->width * image->height * 3, sizeof(uint16_t));
-        memcpy(self->con.image_data, image->data, image->width * image->height * 3 * sizeof(uint16_t));
+        self->con.image_data = calloc(image->width * image->height * 4, sizeof(uint16_t));
 
-        self->con.image_data_size = image->data_size;
+        int y = 0;
+        for (int x = 0; x < image->width * image->height * 3; x++) {
+            ((uint16_t*)self->con.image_data)[y++] = ((uint16_t*)image->data)[x];
+            if ((x + 1) % 3 == 0) {
+                ((uint16_t*)self->con.image_data)[y++] = 0; // Add alpha channel
+            }
+        }
+        //memcpy(self->con.image_data, image->data, image->width * image->height * 3 * sizeof(uint16_t));
+
+        self->con.image_data_size = image->width * image->height * 4 * sizeof(uint16_t);
         self->con.original_width = image->width;
         self->con.original_height = image->height;
         self->con.bit_depth = image->bits;
@@ -58,6 +66,8 @@ gpointer process_image(gpointer data) {
             g_idle_add(render_processed_image, data);
             return NULL;
         }
+        pixbuf = gdk_pixbuf_add_alpha (pixbuf, false, 0, 0, 0);
+
         guint len = 0;
         guchar* pix = gdk_pixbuf_get_pixels_with_length (pixbuf, &len);
 
@@ -70,17 +80,6 @@ gpointer process_image(gpointer data) {
         self->con.image_data_size = len;
     }
     libraw_close(libraw_handle);
-
-
-    /*if (self->con.original_height > self->con.max_tex_size || self->con.original_width > self->con.max_tex_size) {
-        self->con.width = self->con.max_tex_size;
-        self->con.height = ((gdouble)self->con.original_height/self->con.original_width)*self->con.max_tex_size;
-        if (self->con.height > self->con.max_tex_size) {
-            self->con.width = ((gdouble)self->con.original_width/self->con.original_height)*self->con.max_tex_size;
-            self->con.height = self->con.max_tex_size;
-        }
-        printf("Image is bigger than what OGL can render new dimensions: %dx%d\n", self->con.width, self->con.height);
-    }*/
 
    self->con.width = self->con.original_width;
    self->con.height = self->con.original_height;

@@ -51,6 +51,10 @@ void prepare_programs(CLInstance* cl_instance) {
     cl_instance->programs.color_hue = create_program(vertex_shader, color_hue_shader);
     cl_instance->programs.color_saturation = create_program(vertex_shader, color_saturation_shader);
     cl_instance->programs.color_lightness = create_program(vertex_shader, color_lightness_shader);*/
+    printf("Building bitdepth\n");
+    cl_instance->programs.bitdepth = create_kernel(cl_instance, &bitdepth);
+    printf("Building scale\n");
+    cl_instance->programs.scale = create_kernel(cl_instance, &scale);
     printf("All programs built\n");
 }
 
@@ -121,12 +125,12 @@ int cl_render_enqueue(RendererControl* con, gboolean preview, cl_kernel kernel,
     // It's first processing, we have to use input as source
     cl_mem input = NULL;
     if (con->processed_fbs_count == 0) {
-        input = con->cl_instance.input;
+        input = con->cl_instance.preview_input;
     } else {
         // Set texture from other fb as input
         if (preview || 1) {
             input = con->processed_fbs_count % 2 ? 
-                con->cl_instance.memA : con->cl_instance.memB;
+                con->cl_instance.preview_memA : con->cl_instance.preview_memB;
         } else {
             //glBindTexture(GL_TEXTURE_2D, con->processed_fbs_count % 2 ? 
             //    con->tex_fb1 : con->tex_fb2);
@@ -137,7 +141,7 @@ int cl_render_enqueue(RendererControl* con, gboolean preview, cl_kernel kernel,
     cl_mem output = NULL;
     if (preview || 1) {
         output = con->processed_fbs_count % 2 ? 
-            con->cl_instance.memB : con->cl_instance.memA;
+            con->cl_instance.preview_memB : con->cl_instance.preview_memA;
     } else {
         //glBindFramebuffer(GL_FRAMEBUFFER, con->processed_fbs_count % 2 ? 
         //    con->fb2 : con->fb1);
@@ -166,7 +170,7 @@ int cl_render_enqueue(RendererControl* con, gboolean preview, cl_kernel kernel,
     }
 
     err = clEnqueueNDRangeKernel(con->cl_instance.command_queue, kernel, 2, NULL,
-                                (size_t[2]){con->width, con->height}, NULL, 0,
+                                (size_t[2]){con->preview_width, con->preview_height}, NULL, 0,
                                 NULL, NULL);
     if (err != CL_SUCCESS)
     {
@@ -181,7 +185,11 @@ int cl_render_enqueue(RendererControl* con, gboolean preview, cl_kernel kernel,
 int cl_render(RendererControl* con){
     cl_image_format format;
     format.image_channel_order = CL_RGBA;
-    format.image_channel_data_type = con->bit_depth == 16 ? CL_UNSIGNED_INT16 : CL_UNSIGNED_INT8;
+    format.image_channel_data_type = con->bit_depth == 16 ? CL_UNORM_INT16 : CL_UNORM_INT8;
+    
+    cl_image_format format_t = {0};
+    format_t.image_channel_order = CL_RGBA;
+    format_t.image_channel_data_type = CL_UNSIGNED_INT8;
 
     cl_image_desc desc;
     desc.image_type = CL_MEM_OBJECT_IMAGE2D;
@@ -195,6 +203,18 @@ int cl_render(RendererControl* con){
     desc.num_samples = 0;
     desc.buffer = NULL;
 
+    cl_image_desc desc_t;
+    desc_t.image_type = CL_MEM_OBJECT_IMAGE2D;
+    desc_t.image_width = con->preview_width;
+    desc_t.image_height = con->preview_height;
+    desc_t.image_depth = 0;
+    desc_t.image_array_size = 0;
+    desc_t.image_row_pitch = 0;
+    desc_t.image_slice_pitch = 0;
+    desc_t.num_mip_levels = 0;
+    desc_t.num_samples = 0;
+    desc_t.buffer = NULL;
+
     int err = 0;
     con->cl_instance.input = clCreateImage(con->cl_instance.context,
                                             CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
@@ -205,8 +225,8 @@ int cl_render(RendererControl* con){
         return 1;
     }
 
-    con->cl_instance.memA = clCreateImage(con->cl_instance.context,
-                                            CL_MEM_READ_WRITE, &format, &desc,
+    con->cl_instance.preview_input = clCreateImage(con->cl_instance.context,
+                                            CL_MEM_READ_WRITE, &format, &desc_t,
                                             NULL, &err);
     if (err != CL_SUCCESS)
     {
@@ -214,12 +234,30 @@ int cl_render(RendererControl* con){
         return 1;
     }
 
-    con->cl_instance.memB = clCreateImage(con->cl_instance.context,
-                                            CL_MEM_READ_WRITE, &format, &desc,
+    con->cl_instance.preview_memA = clCreateImage(con->cl_instance.context,
+                                            CL_MEM_READ_WRITE, &format, &desc_t,
+                                            NULL, &err);
+    if (err != CL_SUCCESS)
+    {
+        printf("Failed to create A buffer (%d)\n", err);
+        return 1;
+    }
+
+    con->cl_instance.preview_memB = clCreateImage(con->cl_instance.context,
+                                            CL_MEM_READ_WRITE, &format, &desc_t,
                                             NULL, &err);
     if (err != CL_SUCCESS)
     {
         printf("Failed to create B buffer (%d)\n", err);
+        return 1;
+    }
+
+    cl_mem out_mem = clCreateImage(con->cl_instance.context,
+                                            CL_MEM_WRITE_ONLY, &format_t, &desc_t,
+                                            NULL, &err);
+    if (err != CL_SUCCESS)
+    {
+        printf("Failed to create out buffer (%d)\n", err);
         return 1;
     }
 
@@ -232,6 +270,38 @@ int cl_render(RendererControl* con){
         {"kSigma", con->settings.noise_reduction+0.001},
         {"threshold", con->settings.noise_reduction_sharpen+0.001}
     }, 3);*/
+
+    err = clSetKernelArg(con->cl_instance.programs.scale, 0, sizeof(cl_mem), &con->cl_instance.input);
+    if (err != CL_SUCCESS)
+    {
+        printf("SCALE: Failed to set input buffer as a kernel argument (%d)\n", err);
+        return 1;
+    }
+    err = clSetKernelArg(con->cl_instance.programs.scale, 1, sizeof(cl_mem), &con->cl_instance.preview_input);
+    if (err != CL_SUCCESS)
+    {
+        printf("SCALE: Failed to set output buffer as a kernel argument (%d)\n", err);
+        return 1;
+    }
+
+    err = clSetKernelArg(con->cl_instance.programs.scale, 2, sizeof(int), &con->width);
+    err |= clSetKernelArg(con->cl_instance.programs.scale, 3, sizeof(int), &con->height);
+    err |= clSetKernelArg(con->cl_instance.programs.scale, 4, sizeof(int), &con->preview_width);
+    err |= clSetKernelArg(con->cl_instance.programs.scale, 5, sizeof(int), &con->preview_height);
+    if (err != CL_SUCCESS)
+    {
+        printf("Failed to set width/heigh as a kernel argument\n");
+        return 1;
+    }
+
+    err = clEnqueueNDRangeKernel(con->cl_instance.command_queue, con->cl_instance.programs.scale, 2, NULL,
+                                (size_t[2]){con->width, con->height}, NULL, 0,
+                                NULL, NULL);
+    if (err != CL_SUCCESS)
+    {
+        printf("Failed to enqueue work (%d)\n", err);
+        return 1;
+    }
 
     cl_render_enqueue(con, true, con->cl_instance.programs.exposure, &(KernelArgument){"value", con->settings.exposure}, 1);
     /*cl_render_enqueue(con, true, con->cl_instance.programs.brightness, &(KernelArgument){"value", con->settings.brightness}, 1);
@@ -264,14 +334,36 @@ int cl_render(RendererControl* con){
     cl_render_enqueue(con, true, con->cl_instance.programs.tint, &(KernelArgument){"value", con->settings.tint}, 1);
     cl_render_enqueue(con, true, con->cl_instance.programs.saturation, &(KernelArgument){"value", con->settings.saturation}, 1);*/
 
+    err = clSetKernelArg(con->cl_instance.programs.bitdepth, 0, sizeof(cl_mem), con->processed_fbs_count % 2 ? 
+                                &con->cl_instance.preview_memA : &con->cl_instance.preview_memB);
+    if (err != CL_SUCCESS)
+    {
+        printf("BITDEPTH: Failed to set input buffer as a kernel argument (%d)\n", err);
+        return 1;
+    }
+    err = clSetKernelArg(con->cl_instance.programs.bitdepth, 1, sizeof(cl_mem), &out_mem);
+    if (err != CL_SUCCESS)
+    {
+        printf("BITDEPTH: Failed to set output buffer as a kernel argument (%d)\n", err);
+        return 1;
+    }
+
+    err = clEnqueueNDRangeKernel(con->cl_instance.command_queue, con->cl_instance.programs.bitdepth, 2, NULL,
+                                (size_t[2]){con->preview_width, con->preview_height}, NULL, 0,
+                                NULL, NULL);
+    if (err != CL_SUCCESS)
+    {
+        printf("Failed to enqueue work (%d)\n", err);
+        return 1;
+    }
+
     clFinish(con->cl_instance.command_queue);
 
-    free(con->rendered_image_data);
-    con->rendered_image_data = malloc(con->image_data_size);
+    free(con->preview_image_data);
+    con->preview_image_data = malloc(con->preview_width * con->preview_height * 4);
 
-    err = clEnqueueReadImage(con->cl_instance.command_queue, con->processed_fbs_count % 2 ? 
-                                con->cl_instance.memA : con->cl_instance.memB, CL_TRUE, (size_t[3]){0, 0, 0},
-                                (size_t[3]){con->width, con->height, 1}, 0, 0, con->rendered_image_data, 0, NULL, NULL);
+    err = clEnqueueReadImage(con->cl_instance.command_queue, out_mem, CL_TRUE, (size_t[3]){0, 0, 0},
+                                (size_t[3]){con->preview_width, con->preview_height, 1}, 0, 0, con->preview_image_data, 0, NULL, NULL);
     if (err != CL_SUCCESS)
     {
         printf("Failed to enqueue work (%d)\n", err);
@@ -279,8 +371,10 @@ int cl_render(RendererControl* con){
     }
 
     clReleaseMemObject(con->cl_instance.input);
-    clReleaseMemObject(con->cl_instance.memA);
-    clReleaseMemObject(con->cl_instance.memB);
+    clReleaseMemObject(con->cl_instance.preview_input);
+    clReleaseMemObject(con->cl_instance.preview_memA);
+    clReleaseMemObject(con->cl_instance.preview_memB);
+    clReleaseMemObject(out_mem);
 
     return 0;
 }

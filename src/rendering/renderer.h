@@ -33,6 +33,7 @@ typedef struct RendererControl_ {
     int             image_data_size;
     int             original_height;
     int             original_width;
+    void*           preview_image_data;
     int             preview_height;
     int             preview_width;
     int             height;

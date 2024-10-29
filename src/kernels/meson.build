@@ -1,7 +1,7 @@
 prog_python = find_program('python3')
 kernels_source = custom_target(
     'kernels-source.h',
-    input : ['prepare-kernels.py', 'exposure.cl'],
+    input : ['prepare-kernels.py', 'exposure.cl', 'bitdepth.cl', 'scale.cl'],
     output : 'kernels-source.h',
     command : [prog_python, '@INPUT@', '@OUTPUT@'],
 	build_by_default: true

@@ -19,6 +19,8 @@ typedef struct CLPrograms_ {
     cl_kernel  color_saturation;
     cl_kernel  color_lightness;
     cl_kernel  denoise;
+    cl_kernel  bitdepth;
+    cl_kernel  scale;
 } CLPrograms;
 
 typedef struct CLInstance_ {
@@ -29,6 +31,9 @@ typedef struct CLInstance_ {
     cl_mem              input;
     cl_mem              memA;
     cl_mem              memB;
+    cl_mem              preview_input;
+    cl_mem              preview_memA;
+    cl_mem              preview_memB;
 } CLInstance;
 
 typedef struct KernelArgument_ {
